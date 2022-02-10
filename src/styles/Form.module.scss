@@ -1,0 +1,40 @@
+.form{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #F4F3F3;
+    padding: 30px 25px;
+    border: 2px solid #BDBDBD;
+    border-radius: 20px;
+    min-width: 250px;
+    p{
+        font-size: 24px;
+        font-weight: 700;
+    }
+    input{
+        width: 100%;
+        background: #F7F7F7;
+        border: 1px solid #828282;
+        border-radius: 20px;
+        margin-bottom: 13px;
+        padding: 8px 15px;
+
+        font-weight: 700;
+        font-size: 12px;
+        color: #A8A6A6;
+    }
+    button{
+        background: #301B52;
+        border-radius: 20px;
+        border: none;
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 25px;
+        &:hover{
+            cursor: pointer;
+            background: #24143d;
+        }
+    }
+}

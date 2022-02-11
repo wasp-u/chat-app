@@ -5,16 +5,16 @@ type Props = {
     title: string
     buttonText: string
     onSubmit: (email: string, password: string) => void
+    onLoginWithGoogle: () => void
 }
 
-export const LoginForm: React.FC<Props> = ({ buttonText, onSubmit, title }) => {
+export const LoginForm: React.FC<Props> = ({ buttonText, onSubmit, title, onLoginWithGoogle }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
     const handleSubmit = () => {
         onSubmit(email, password)
     }
-
     return (
         <div className={styles.form}>
             <p>{title}</p>
@@ -30,7 +30,8 @@ export const LoginForm: React.FC<Props> = ({ buttonText, onSubmit, title }) => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="password" />
-            <button onClick={handleSubmit}>{buttonText}</button>
+            <button style={{ 'marginBottom': '10px' }} onClick={handleSubmit}>{buttonText}</button>
+            <button onClick={onLoginWithGoogle}>Sign In with google account</button>
         </div>
     )
 }

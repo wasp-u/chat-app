@@ -108,6 +108,15 @@ export const onAuth = (email: string, password: string) =>
         const data = await userAuth.authMe(email, password)
         dispatch(setUserAuthData({ id: data.uid, email: data.email }))
     }
+export const onAuthWithGoogle = () =>
+    async (dispatch: any) => {
+        // @ts-ignore
+        const { id, email, fullName } = await userAuth.authMeWithGoogle()
+        const name = fullName.split(' ')[0]
+        const lastName = fullName.split(' ')[1]
+        dispatch(setUserAuthData({ id, email: email }))
+        dispatch(setUserDataHandle({ userId: id, email, userName: name, userLastName: lastName }))
+    }
 export const onRegister = (forUserAuth: ForUserAuth) =>
     async (dispatch: any) => {
         dispatch(setStatus('pending'))

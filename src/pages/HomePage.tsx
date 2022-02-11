@@ -31,7 +31,7 @@ const HomePage = () => {
         ? <div className={styles.homePage}>
             <div className={styles.sideBar}>
                 {settingMode
-                    ? <Settings />
+                    ? <Settings changeSettingMode={changeSettingMode} />
                     : <DialogsWindow />
                 }
                 <button onClick={changeSettingMode}>Setting</button>

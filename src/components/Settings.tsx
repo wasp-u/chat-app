@@ -3,7 +3,10 @@ import { RootStateType } from 'store'
 import { setUserDataHandle } from 'store/slices/userSlice'
 import { ChangeUserDataForm } from './ChangeUserDataForm'
 
-export const Settings = () => {
+type Props = {
+    changeSettingMode: () => void
+}
+export const Settings: React.FC<Props> = ({ changeSettingMode }) => {
     const id = useSelector((state: RootStateType) => state.user.userAuthData.id)
     const email = useSelector((state: RootStateType) => state.user.userAuthData.email)
 
@@ -12,6 +15,7 @@ export const Settings = () => {
     const submitUserData = (userName: string, userLastName: string) => {
         if (!!id && !!email) {
             dispatch(setUserDataHandle({ userId: id, email, userName, userLastName }))
+            changeSettingMode()
         }
     }
 

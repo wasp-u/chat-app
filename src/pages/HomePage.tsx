@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector, useStore } from 'react-redux'
 import { Navigate } from 'react-router-dom'
 import { RootStateType } from 'store'
-import { getUserData, startDataListening } from 'store/slices/userSlice'
+import { getUserData } from 'store/slices/userSlice'
 import styles from 'styles/HomePage.module.scss'
 import './../firebase'
 
@@ -25,17 +25,16 @@ const HomePage = () => {
         if (id !== null) {
             dispatch(getUserData(id))
         }
-        // dispatch(startDataListening())
     }, [id])
 
     return (isAuth
         ? <div className={styles.homePage}>
-            <div>
-                <button onClick={changeSettingMode}>Setting</button>
+            <div className={styles.sideBar}>
                 {settingMode
                     ? <Settings />
                     : <DialogsWindow />
                 }
+                <button onClick={changeSettingMode}>Setting</button>
             </div>
             <Chat />
         </div>

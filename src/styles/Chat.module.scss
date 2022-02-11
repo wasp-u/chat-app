@@ -1,10 +1,14 @@
+.title{
+
+}
+
 .chat{
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    max-width: 70%;
+    width: 70%;
     height: 90vh;
-    background: rgb(236, 236, 236);
+    background: #89c2d96a;
     padding: 20px;
     border-radius: 20px;
     .chat_window{
@@ -12,15 +16,55 @@
         margin-bottom: 10px;
     }
     textarea{
+        min-height: 70px;
         resize: none;
+        margin-bottom: 10px;
+        border-radius: 10px;
+    }
+    button{
+        background: #013a63;
+        border-radius: 10px;
+        border: none;
+        color: white;
+        padding: 5px;
     }
 }
 
 .message{
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 10fr 1fr;
+    align-items: center;
     border-radius: 10px;
     padding: 5px;
     margin-top: 10px;
-    background: rgb(97, 164, 197);
+    width: 70%;
+    margin-right: 0;
+    .userName{
+        font-size: 16px;
+        font-weight: 500;
+    }
+    .avatar{
+        margin-right: 5px;
+        color: #013a63;
+        background: rgb(142, 223, 255);
+    }
+    .time{
+        margin-left: 5px;
+    }
+}
+
+@media (max-width: 768px) {
+    .title{
+        display: none;
+    }
+    .chat{
+        width: 100%;
+        height: 85vh;
+        button{
+            padding: 15px;
+        }
+    }
+    .message{
+        width: 90%;
+    }
 }

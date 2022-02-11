@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "store"
 import { sendMessage, startMessagesListening } from "store/slices/userSlice"
@@ -19,20 +19,28 @@ export const Chat = () => {
         dispatch(startMessagesListening())
     }, [])
     const onSendClick = () => {
-        if (!!name && !!id) {
+        if (!!name && !!id && !!newMessage) {
             dispatch(sendMessage({ fromId: id, fromName: name, text: newMessage }))
             setNewMessage('')
         }
     }
 
+
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    }
+    useEffect(scrollToBottom, [messages]);
+
     return (
         <div >
-            <h1>chat</h1>
+            <h1 className={styles.title}>chat</h1>
             <div className={styles.chat}>
                 <div className={styles.chat_window}>
-                    {messages.map(message => <Message text={message.text} fromId={message.fromId} fromName={message.fromName} />)}
+                    {messages.map(message => <Message key={message.id} message={message} />)}
+                    <div ref={messagesEndRef} />
                 </div>
-                <textarea value={newMessage} onChange={(e) => onMessageTextChange(e.target.value)} />
+                <textarea placeholder="Enter your message" value={newMessage} onChange={(e) => onMessageTextChange(e.target.value)} />
                 <button onClick={onSendClick}>Send</button>
             </div>
         </div>

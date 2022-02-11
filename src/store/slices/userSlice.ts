@@ -21,6 +21,8 @@ type message = {
     fromId: string
     fromName: string
     text: string
+    time: number
+    id: number
 }
 type ForUserAuth = {
     email: string

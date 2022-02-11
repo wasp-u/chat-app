@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "store"
 import { removeUser } from "store/slices/userSlice"
+import styles from 'styles/DialogsWindow.module.scss'
 
 export const DialogsWindow = () => {
     const dispatch = useDispatch()
@@ -11,7 +12,7 @@ export const DialogsWindow = () => {
     }
 
     return (
-        <div>
+        <div className={styles.dialogsWindow}>
             <p>Hello {userData.name} {userData.lastName}</p>
             <button onClick={logoutHandler}>Logout</button>
         </div>

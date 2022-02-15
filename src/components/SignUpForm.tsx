@@ -36,10 +36,6 @@ export const SignUpForm: React.FC<Props> = ({ buttonText, onSubmit, title }) => 
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Name" />
-            <input
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Last Name" />
             <button onClick={handleSubmit}>{buttonText}</button>
         </div>
     )

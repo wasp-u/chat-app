@@ -2,9 +2,9 @@ import { RootStateType } from './../store/index';
 import { useSelector } from "react-redux"
 
 export const useAuth = () => {
-    const { id } = useSelector((state: RootStateType) => state.user.userAuthData)
+    const { uid } = useSelector((state: RootStateType) => state.user.userData)
     return {
-        isAuth: !!id,
-        id
+        isAuth: !!uid,
+        uid
     }
 }

@@ -9,23 +9,30 @@ type Props = {
         text: string
         fromId: string
         fromName: string
-        time: number
+        time: number,
+        photoURL: string
     }
 }
 
 export const Message: React.FC<Props> = React.memo(function Message({ message }) {
 
-    const id = useSelector((state: RootStateType) => state.user.userAuthData.id) as string
+    const id = useSelector((state: RootStateType) => state.user.userData.uid) as string
     const sendTime = new Date(message.time)
     const displayTime = sendTime.toString().split(' ')[4];
 
     return (
         <div
             className={styles.message}
-            style={message.fromId == id
+            style={message.fromId === id
                 ? { background: '#468faf', 'marginLeft': 'auto' }
                 : { background: '#89c2d9' }}>
-            <Avatar className={styles.avatar} size={40}>{message.fromName[0]}</Avatar>
+            {message.photoURL
+                ? <img
+                    style={{ 'width': 40, 'borderRadius': '50%', 'marginRight': '5px' }}
+                    src={message.photoURL}
+                    alt="" />
+                : <Avatar className={styles.avatar} size={40}>{message.fromName[0]}</Avatar>
+            }
             <div>
                 <div className={styles.userName}>
                     {message.fromName}

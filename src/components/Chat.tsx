@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react"
+import { KeyboardEvent, KeyboardEventHandler, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "store"
 import { sendMessage, startMessagesListening } from "store/slices/userSlice"
@@ -7,24 +7,38 @@ import styles from 'styles/Chat.module.scss'
 
 export const Chat = () => {
     const [newMessage, setNewMessage] = useState('')
-    const dispatch = useDispatch()
-    const name = useSelector((state: RootStateType) => state.user.userData.name)
-    const id = useSelector((state: RootStateType) => state.user.userAuthData.id)
+    const name = useSelector((state: RootStateType) => state.user.userData.displayName)
+    const id = useSelector((state: RootStateType) => state.user.userData.uid)
+    const photoURL = useSelector((state: RootStateType) => state.user.userData.photoURL) as string
     const messages = useSelector((state: RootStateType) => state.user.messages)
+
+    const dispatch = useDispatch()
 
     const onMessageTextChange = (text: string) => {
         setNewMessage(text)
     }
+
     useEffect(() => {
         dispatch(startMessagesListening())
-    }, [])
+    }, [dispatch])
+
     const onSendClick = () => {
-        if (!!name && !!id && !!newMessage) {
-            dispatch(sendMessage({ fromId: id, fromName: name, text: newMessage }))
+        if (!!name && !!id && !!newMessage && newMessage !== '\n') {
+            dispatch(sendMessage({ fromId: id, fromName: name, text: newMessage, photoURL }))
+            setNewMessage('')
+        }
+        if (newMessage === '\n') {
             setNewMessage('')
         }
     }
 
+    const textAreaRef = useRef<HTMLTextAreaElement>(null)
+    const onEnterKeyClick = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter') {
+            onSendClick()
+            textAreaRef.current?.blur()
+        }
+    }
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const scrollToBottom = () => {
@@ -40,7 +54,12 @@ export const Chat = () => {
                     {messages.map(message => <Message key={message.id} message={message} />)}
                     <div ref={messagesEndRef} />
                 </div>
-                <textarea placeholder="Enter your message" value={newMessage} onChange={(e) => onMessageTextChange(e.target.value)} />
+                <textarea
+                    ref={textAreaRef}
+                    onKeyDown={onEnterKeyClick}
+                    placeholder="Enter your message"
+                    value={newMessage !== '\n' ? newMessage : ''}
+                    onChange={(e) => onMessageTextChange(e.target.value)} />
                 <button onClick={onSendClick}>Send</button>
             </div>
         </div>

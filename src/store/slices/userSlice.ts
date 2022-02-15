@@ -5,13 +5,10 @@ import { userAuth } from "api/firebase_api/auth";
 
 const initialState = {
     userData: {
+        displayName: null as string | null,
         email: null as string | null,
-        name: null as string | null,
-        lastName: null as string | null
-    },
-    userAuthData: {
-        email: null as string | null,
-        id: null as string | null,
+        photoURL: null as string | null,
+        uid: null as string | null,
     },
     status: 'success' as 'success' | 'pending',
     error: null as string | null,
@@ -23,12 +20,12 @@ type message = {
     text: string
     time: number
     id: number
+    photoURL: string
 }
 type ForUserAuth = {
     email: string
     password: string
     name: string,
-    lastName: string
 }
 
 const userSlice = createSlice({
@@ -40,26 +37,18 @@ const userSlice = createSlice({
         },
         setUserData(state, action) {
             state.userData = {
+                displayName: action.payload.displayName,
                 email: action.payload.email,
-                name: action.payload.userName,
-                lastName: action.payload.userLastName
-            }
-        },
-        setUserAuthData(state, action) {
-            state.userAuthData = {
-                email: action.payload.email,
-                id: action.payload.id
+                photoURL: action.payload.photoURL,
+                uid: action.payload.uid,
             }
         },
         removeUser(state) {
-            state.userAuthData = {
-                email: null,
-                id: null
-            }
             state.userData = {
+                displayName: null,
                 email: null,
-                name: null,
-                lastName: null
+                photoURL: null,
+                uid: null
             }
         },
         setMessages(state, action) {
@@ -73,19 +62,19 @@ const userSlice = createSlice({
     }
 })
 
-export const { setStatus, setUserData, setUserAuthData, removeUser, setMessages } = userSlice.actions
+export const { setStatus, setUserData, removeUser, setMessages } = userSlice.actions
 
-let _newDataHandler: ((data: any) => void) | null = null
-const newDataHandlerCreator = (dispatch: any) => {
-    if (_newDataHandler === null) {
-        _newDataHandler = (data) => {
-            for (let key in data) {
-                dispatch(setUserData(data[key]))
-            }
-        }
-    }
-    return _newDataHandler
-}
+// let _newDataHandler: ((data: any) => void) | null = null
+// const newDataHandlerCreator = (dispatch: any) => {
+//     if (_newDataHandler === null) {
+//         _newDataHandler = (data) => {
+//             for (let key in data) {
+//                 dispatch(setUserData(data[key]))
+//             }
+//         }
+//     }
+//     return _newDataHandler
+// }
 
 let _newMessageHandler: ((data: any) => void) | null = null
 const newMessageHandlerCreator = (dispatch: any) => {
@@ -105,47 +94,54 @@ export const startMessagesListening = () => async (dispatch: any) => {
 }
 export const onAuth = (email: string, password: string) =>
     async (dispatch: any) => {
-        const data = await userAuth.authMe(email, password)
-        dispatch(setUserAuthData({ id: data.uid, email: data.email }))
+        try {
+            const user = await userAuth.authMe(email, password)
+            dispatch(setUserData(user))
+        } catch (error) {
+            // @ts-ignore
+            console.log(error.message);
+        }
     }
 export const onAuthWithGoogle = () =>
     async (dispatch: any) => {
-        // @ts-ignore
-        const { id, email, fullName } = await userAuth.authMeWithGoogle()
-        const name = fullName.split(' ')[0]
-        const lastName = fullName.split(' ')[1]
-        dispatch(setUserAuthData({ id, email: email }))
-        dispatch(setUserDataHandle({ userId: id, email, userName: name, userLastName: lastName }))
+        const user = await userAuth.authMeWithGoogle()
+        dispatch(setUserData(user))
     }
 export const onRegister = (forUserAuth: ForUserAuth) =>
     async (dispatch: any) => {
-        dispatch(setStatus('pending'))
-        const { uid, email } = await userAuth.registerMe(forUserAuth.email, forUserAuth.password)
-        dispatch(setStatus('success'))
-        dispatch(setUserAuthData({ id: uid, email: email }))
-        await dispatch(setUserDataHandle({ userId: uid, email, userName: forUserAuth.name, userLastName: forUserAuth.lastName }))
+        await userAuth.registerMe(forUserAuth.email, forUserAuth.password)
+        userAuth.updateUserData(forUserAuth.name).then(() => {
+            return userAuth.getAuthUser()
+        }).then((user) => {
+            dispatch(setUserData(user))
+        })
     }
-export const getUserData = (id: string) =>
+// export const getUserData = (id: string) =>
+//     async (dispatch: any) => {
+//         try {
+//             const userData = await userInfo.getUserData(id)
+//             if (!userData) {
+//                 throw new Error('Hmm....')
+//             }
+//             dispatch(setUserData({ userName: userData.userName, userLastName: userData.userLastName, email: userData.email }))
+//         } catch (error) {
+//             console.log(error);
+//         }
+// }
+export const updateUserData = (name: string) =>
     async (dispatch: any) => {
-        try {
-            const userData = await userInfo.getUserData(id)
-            if (!userData) {
-                throw new Error('Hmm....')
-            }
-            dispatch(setUserData({ userName: userData.userName, userLastName: userData.userLastName, email: userData.email }))
-        } catch (error) {
-            console.log(error);
-        }
+        await userAuth.updateUserData(name).then(() => {
+            const user = userAuth.getAuthUser()
+            dispatch(setUserData(user))
+        })
     }
-export const setUserDataHandle = (userData: { userId: string, email: string, userName: string, userLastName: string }) =>
-    async (dispatch: any) => {
-        dispatch(setStatus('pending'))
-        await userInfo.setNewUserData(userData)
-        dispatch(getUserData(userData.userId))
-        dispatch(setStatus('success'))
-    }
-export const sendMessage = (message: { fromId: string, fromName: string, text: string }) =>
+export const sendMessage = (message: { fromId: string, fromName: string, text: string, photoURL: string }) =>
     async (dispatch: any) => {
         await chatAPI.send(message)
+    }
+export const signOut = () =>
+    async (dispatch: any) => {
+        await userAuth.signOut()
+        dispatch(removeUser())
     }
 export default userSlice.reducer

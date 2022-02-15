@@ -6,8 +6,8 @@ import { SignUpForm } from './SignUpForm'
 export const SignUp = () => {
     const dispatch = useDispatch()
 
-    const onSignUp = (email: string, password: string, userName: string, userLastName: string) => {
-        dispatch(onRegister({ email, password, name: userName, lastName: userLastName }))
+    const onSignUp = (email: string, password: string, userName: string) => {
+        dispatch(onRegister({ email, password, name: userName }))
     }
 
     return (

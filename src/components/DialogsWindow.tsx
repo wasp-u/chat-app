@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "store"
 import { onSearchUsers, setOpenChatWhit, signOut, startDialogsListening, UserData } from "store/slices/userSlice"
 import styles from 'styles/DialogsWindow.module.scss'
+import { DialogItem } from "./DialogItem"
 import { Settings } from "./Settings"
 import { User } from "./User"
 
@@ -64,11 +65,16 @@ export const DialogsWindow: React.FC<Props> = ({ changeActiveChatId }) => {
                         />
                         <button onClick={onSearch}>Search</button>
                     </div>
-                    {searchResultVisible && searchedUsers.map(user => <User onCLick={userCardClickHandle} key={user.uid} user={user} />)}
+                    {searchResultVisible &&
+                        <div>
+                            <h3>Users:</h3>
+                            {searchedUsers.map(user => <User onCLick={userCardClickHandle} key={user.uid} user={user} />)}
+                        </div>}
                 </div>}
 
             <div>
-                {dialogs.map(dialog => <User onCLick={userCardClickHandle} key={dialog.uid} user={dialog} />)}
+                <h3>Dialogs:</h3>
+                {dialogs.map(dialog => <DialogItem onCLick={userCardClickHandle} key={dialog.uid} dialog={dialog} />)}
             </div>
             <button onClick={() => changeActiveChatId('GeneralChat')}>open general chat</button>
         </div>

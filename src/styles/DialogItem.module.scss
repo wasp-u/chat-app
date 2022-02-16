@@ -1,0 +1,30 @@
+.userCard{
+    display: flex;
+    padding: 10px;
+    background: #b2bebf4e;
+    &:hover{
+        background: #b2bebf;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+    .profilePhoto{
+        margin-right: 5px;
+        img{
+            width: 40px;
+            height: 40px;
+        }
+    }
+    .nameAndLastMessage{
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    .lastMessage{
+        display: flex;
+        .textAndTime{
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+}

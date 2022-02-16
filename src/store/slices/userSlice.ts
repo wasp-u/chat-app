@@ -13,8 +13,9 @@ const initialState = {
     searchedUSers: [] as UserData[],
     openChatWhit: {} as UserData
 }
-type Dialog = UserData & {
+export type Dialog = UserData & {
     messages: {}
+    lastMessage: Message
 }
 type Message = {
     fromId: string
@@ -22,7 +23,7 @@ type Message = {
     text: string
     time: number
     id: number
-    photoURL: string
+    photoURL?: string
 }
 type ForUserAuth = {
     email: string
@@ -32,7 +33,7 @@ type ForUserAuth = {
 export type UserData = {
     displayName: string | null,
     email: string | null,
-    photoURL: string | null,
+    photoURL?: string | null,
     uid: string | null,
 }
 
@@ -166,8 +167,8 @@ export const sendMessageToGeneralChat = (Message: { fromId: string, fromName: st
     async (dispatch: any) => {
         await chatAPI.send(Message)
     }
-export const sendMessageToUser = (Message: { fromId: string, fromName: string, text: string, photoURL: string | null },
-    to: { id: string, displayName: string | null, photoURL: string | null }) =>
+export const sendMessageToUser = (Message: { fromId: string, fromName: string, text: string, photoURL?: string | null },
+    to: { id: string, displayName: string | null, photoURL?: string | null }) =>
     async (dispatch: any) => {
         await dialogsAPI.sendMessageToUser(Message, to)
     }

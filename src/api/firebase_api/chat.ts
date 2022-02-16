@@ -5,14 +5,22 @@ import { getDatabase } from 'firebase/database';
 import './../../firebase'
 
 const db = getDatabase()
-const messagesListRef = query(ref(db, 'messages/'), limitToLast(30));
 // ref(db, 'messages/');
 
-const subscribeToMessagesChange = (callback: any) => {
-    onValue(messagesListRef, (snapshot) => {
-        const data = snapshot.val();
-        callback(data)
-    });
+const subscribeToMessagesChange = (callback: any, uid?: string, chatId?: string) => {
+    if (!!uid && !!chatId) {
+        const messagesListRef = query(ref(db, `users/${uid}/dialogs/${chatId}/messages`), limitToLast(30));
+        onValue(messagesListRef, (snapshot) => {
+            const data = snapshot.val();
+            callback(data)
+        });
+    } else {
+        const messagesListRef = query(ref(db, 'messages/'), limitToLast(30));
+        onValue(messagesListRef, (snapshot) => {
+            const data = snapshot.val();
+            callback(data)
+        });
+    }
 }
 
 export const chatAPI = {
@@ -27,7 +35,7 @@ export const chatAPI = {
             photoURL: message.photoURL
         });
     },
-    subscribe(callback: any) {
-        subscribeToMessagesChange(callback)
+    subscribe(callback: any, uid?: string, chatId?: string) {
+        subscribeToMessagesChange(callback, uid, chatId)
     },
 }

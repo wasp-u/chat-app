@@ -39,14 +39,15 @@
     margin-top: 10px;
     width: 70%;
     margin-right: 0;
+    .profilePhoto{
+        width: 40px;
+        height: 40px;
+        margin-right: 5px;
+        color: #013a63;
+    }
     .userName{
         font-size: 16px;
         font-weight: 500;
-    }
-    .avatar{
-        margin-right: 5px;
-        color: #013a63;
-        background: rgb(142, 223, 255);
     }
     .time{
         margin-left: 5px;

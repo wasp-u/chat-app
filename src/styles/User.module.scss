@@ -1,0 +1,13 @@
+.userCard{
+    display: flex;
+    padding: 10px;
+    background: #b2bebf4e;
+    &:hover{
+        background: #b2bebf;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+    .profilePhoto{
+        margin-right: 5px;
+    }
+}

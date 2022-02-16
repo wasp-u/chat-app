@@ -4,17 +4,16 @@ import styles from 'styles/Form.module.scss'
 type Props = {
     title: string
     buttonText: string
-    onSubmit: (email: string, password: string, userName: string, userLastName: string) => void
+    onSubmit: (email: string, password: string, userName: string) => void
 }
 
 export const SignUpForm: React.FC<Props> = ({ buttonText, onSubmit, title }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [name, setName] = useState('')
-    const [lastName, setLastName] = useState('')
 
     const handleSubmit = () => {
-        onSubmit(email, password, name, lastName)
+        onSubmit(email, password, name)
     }
 
     return (

@@ -1,28 +1,34 @@
-import { getDatabase, ref, set, get, child, onValue } from "firebase/database";
+import { UserData } from './../../store/slices/userSlice';
+import { getDatabase, ref, set, get, child } from "firebase/database";
 import './../../firebase'
 
 const db = getDatabase();
-const starCountRef = ref(db, 'users/');
+// const starCountRef = ref(db, 'users/');
 const dbRef = ref(getDatabase());
 
-const subscribeToUsersChange = (callback: any) => {
-    onValue(starCountRef, (snapshot) => {
-        const data = snapshot.val();
-        callback(data)
-    });
-}
+// const subscribeToUsersChange = (callback: any) => {
+//     onValue(starCountRef, (snapshot) => {
+//         const data = snapshot.val();
+//         callback(data)
+//     });
+// }
 
 export const userInfo = {
-    setNewUserData(userData: { userId: string, email: string, userName: string, userLastName: string }) {
-        set(ref(db, 'users/' + userData.userId), {
-            userName: userData.userName,
-            userLastName: userData.userLastName,
-            email: userData.email
+    setNewUserData(user: UserData) {
+        get(child(dbRef, `users/${user.uid}`)).then((snapshot) => {
+            if (!snapshot.exists()) {
+                set(ref(db, 'users/' + user.uid), {
+                    displayName: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    uid: user.uid,
+                });
+            }
+        }).catch((error) => {
+            console.error(error);
         });
+
     },
-    // subscribe(callback: any) {
-    //     subscribeToUsersChange(callback)
-    // },
     getUserData(userId: string) {
         return get(child(dbRef, `users/${userId}`)).then((snapshot) => {
             if (snapshot.exists()) {
@@ -32,6 +38,25 @@ export const userInfo = {
             }
         }).catch((error) => {
             console.error(error);
+        });
+    },
+    searchUser(searchValue: string) {
+        let users = [] as UserData[]
+        return get(child(dbRef, `users/`)).then((snapshot) => {
+            if (snapshot.exists()) {
+                for (let key in snapshot.val()) {
+                    const name = snapshot.val()[key].displayName
+                    if (name.toLocaleLowerCase().indexOf(searchValue.toLocaleLowerCase()) !== -1) {
+                        users.push(snapshot.val()[key])
+                    }
+                }
+            } else {
+                console.log("No data available");
+            }
+            return users
+        }).catch((error) => {
+            console.error(error);
+            return []
         });
     }
 }

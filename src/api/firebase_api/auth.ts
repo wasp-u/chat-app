@@ -5,7 +5,7 @@ import {
     GoogleAuthProvider,
     signInWithPopup,
     updateProfile,
-    browserSessionPersistence
+    User
 } from "firebase/auth";
 import './../../firebase'
 
@@ -14,8 +14,7 @@ const provider = new GoogleAuthProvider()
 
 export const userAuth = {
     updateUserData(name: string) {
-        const user = auth.currentUser
-        // @ts-ignore
+        const user = auth.currentUser as User
         return updateProfile(user, {
             displayName: name
         }).then(() => {
@@ -26,7 +25,6 @@ export const userAuth = {
     },
     getAuthUser() {
         const user = auth.currentUser
-        auth.setPersistence(browserSessionPersistence)
         // console.log(user);
         if (!!user) {
             return {
@@ -44,6 +42,7 @@ export const userAuth = {
     },
     authMeWithGoogle() {
         return signInWithPopup(auth, provider).then((result) => {
+            // const credential = GoogleAuthProvider.credentialFromResult(result);
             const user = result.user
             return {
                 displayName: user.displayName,
@@ -56,6 +55,12 @@ export const userAuth = {
             const errorMessage = error.message;
             console.log(errorCode);
             console.log(errorMessage);
+            return {
+                displayName: null,
+                email: null,
+                photoURL: null,
+                uid: null
+            }
         });
     },
     authMe(email: string, password: string) {

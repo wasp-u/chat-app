@@ -1,3 +1,4 @@
+import { dialogsAPI } from './../../api/firebase_api/dialogs';
 import { chatAPI } from './../../api/firebase_api/chat';
 import { userInfo } from 'api/firebase_api/userInfo';
 import { createSlice } from "@reduxjs/toolkit";
@@ -10,11 +11,16 @@ const initialState = {
         photoURL: null as string | null,
         uid: null as string | null,
     },
+    dialogs: [] as Dialog[],
     status: 'success' as 'success' | 'pending',
     error: null as string | null,
-    messages: [] as message[]
+    messages: [] as Message[],
+    searchedUSers: [] as UserData[]
 }
-type message = {
+type Dialog = UserData & {
+    messages: {}
+}
+type Message = {
     fromId: string
     fromName: string
     text: string
@@ -26,6 +32,12 @@ type ForUserAuth = {
     email: string
     password: string
     name: string,
+}
+export type UserData = {
+    displayName: string | null,
+    email: string | null,
+    photoURL: string | null,
+    uid: string | null,
 }
 
 const userSlice = createSlice({
@@ -57,24 +69,22 @@ const userSlice = createSlice({
                 messagesArr.push(action.payload[item])
             }
             state.messages = messagesArr
-        }
+        },
+        setDialogs(state, action) {
+            let dialogsArr = []
+            for (let key in action.payload) {
+                dialogsArr.push(action.payload[key])
+            }
+            state.dialogs = dialogsArr
 
+        },
+        setSearchedUsers(state, action) {
+            state.searchedUSers = action.payload
+        }
     }
 })
 
-export const { setStatus, setUserData, removeUser, setMessages } = userSlice.actions
-
-// let _newDataHandler: ((data: any) => void) | null = null
-// const newDataHandlerCreator = (dispatch: any) => {
-//     if (_newDataHandler === null) {
-//         _newDataHandler = (data) => {
-//             for (let key in data) {
-//                 dispatch(setUserData(data[key]))
-//             }
-//         }
-//     }
-//     return _newDataHandler
-// }
+export const { setStatus, setUserData, removeUser, setMessages, setSearchedUsers, setDialogs } = userSlice.actions
 
 let _newMessageHandler: ((data: any) => void) | null = null
 const newMessageHandlerCreator = (dispatch: any) => {
@@ -85,12 +95,21 @@ const newMessageHandlerCreator = (dispatch: any) => {
     }
     return _newMessageHandler
 }
-
-export const startDataListening = () => async (dispatch: any) => {
-    // userInfo.subscribe(newDataHandlerCreator(dispatch))
+let _newDialogsHandler: ((data: any) => void) | null = null
+const newDialogsHandlerCreator = (dispatch: any) => {
+    if (_newDialogsHandler === null) {
+        _newDialogsHandler = (data) => {
+            dispatch(setDialogs(data))
+        }
+    }
+    return _newDialogsHandler
 }
-export const startMessagesListening = () => async (dispatch: any) => {
-    chatAPI.subscribe(newMessageHandlerCreator(dispatch))
+
+export const startMessagesListening = (uid?: string, chatId?: string) => async (dispatch: any) => {
+    chatAPI.subscribe(newMessageHandlerCreator(dispatch), uid, chatId)
+}
+export const startDialogsListening = (uid: string) => async (dispatch: any) => {
+    dialogsAPI.subscribe(newDialogsHandlerCreator(dispatch), uid)
 }
 export const onAuth = (email: string, password: string) =>
     async (dispatch: any) => {
@@ -99,13 +118,19 @@ export const onAuth = (email: string, password: string) =>
             dispatch(setUserData(user))
         } catch (error) {
             // @ts-ignore
-            console.log(error.message);
+            console.log(error.Message);
         }
     }
 export const onAuthWithGoogle = () =>
     async (dispatch: any) => {
-        const user = await userAuth.authMeWithGoogle()
+        const user: UserData = await userAuth.authMeWithGoogle()
         dispatch(setUserData(user))
+        userInfo.setNewUserData(user)
+    }
+export const onSearchUsers = (name: string) =>
+    async (dispatch: any) => {
+        const users: UserData[] = await userInfo.searchUser(name)
+        dispatch(setSearchedUsers(users))
     }
 export const onRegister = (forUserAuth: ForUserAuth) =>
     async (dispatch: any) => {
@@ -114,6 +139,7 @@ export const onRegister = (forUserAuth: ForUserAuth) =>
             return userAuth.getAuthUser()
         }).then((user) => {
             dispatch(setUserData(user))
+            userInfo.setNewUserData(user)
         })
     }
 // export const getUserData = (id: string) =>
@@ -131,13 +157,19 @@ export const onRegister = (forUserAuth: ForUserAuth) =>
 export const updateUserData = (name: string) =>
     async (dispatch: any) => {
         await userAuth.updateUserData(name).then(() => {
-            const user = userAuth.getAuthUser()
+            return userAuth.getAuthUser() as UserData
+        }).then(user => {
+            userInfo.setNewUserData(user)
             dispatch(setUserData(user))
         })
     }
-export const sendMessage = (message: { fromId: string, fromName: string, text: string, photoURL: string }) =>
+export const sendMessageToGeneralChat = (Message: { fromId: string, fromName: string, text: string, photoURL: string }) =>
     async (dispatch: any) => {
-        await chatAPI.send(message)
+        await chatAPI.send(Message)
+    }
+export const sendMessageToUser = (Message: { fromId: string, fromName: string, text: string, photoURL: string }, toId: string) =>
+    async (dispatch: any) => {
+        await dialogsAPI.sendMessageToUser(Message, toId)
     }
 export const signOut = () =>
     async (dispatch: any) => {

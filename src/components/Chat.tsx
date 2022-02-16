@@ -1,14 +1,19 @@
-import { KeyboardEvent, KeyboardEventHandler, useEffect, useRef, useState } from "react"
+import { KeyboardEvent, useEffect, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "store"
-import { sendMessage, startMessagesListening } from "store/slices/userSlice"
+import { sendMessageToGeneralChat, sendMessageToUser, startMessagesListening } from "store/slices/userSlice"
 import { Message } from "./Message"
 import styles from 'styles/Chat.module.scss'
 
-export const Chat = () => {
+type Props = {
+    withUID: string | null
+}
+
+export const Chat: React.FC<Props> = ({ withUID }) => {
+
     const [newMessage, setNewMessage] = useState('')
     const name = useSelector((state: RootStateType) => state.user.userData.displayName)
-    const id = useSelector((state: RootStateType) => state.user.userData.uid)
+    const uid = useSelector((state: RootStateType) => state.user.userData.uid)
     const photoURL = useSelector((state: RootStateType) => state.user.userData.photoURL) as string
     const messages = useSelector((state: RootStateType) => state.user.messages)
 
@@ -19,12 +24,22 @@ export const Chat = () => {
     }
 
     useEffect(() => {
-        dispatch(startMessagesListening())
-    }, [dispatch])
+        if (withUID !== 'GeneralChat') {
+            // @ts-ignore
+            dispatch(startMessagesListening(uid, withUID))
+        } else {
+            dispatch(startMessagesListening())
+        }
+    }, [dispatch, withUID])
 
     const onSendClick = () => {
-        if (!!name && !!id && !!newMessage && newMessage !== '\n') {
-            dispatch(sendMessage({ fromId: id, fromName: name, text: newMessage, photoURL }))
+        if (!!name && !!uid && !!newMessage && newMessage !== '\n') {
+            if (withUID !== 'GeneralChat') {
+                // @ts-ignore
+                dispatch(sendMessageToUser({ fromId: uid, fromName: name, text: newMessage, photoURL }, withUID))
+            } else {
+                dispatch(sendMessageToGeneralChat({ fromId: uid, fromName: name, text: newMessage, photoURL }))
+            }
             setNewMessage('')
         }
         if (newMessage === '\n') {

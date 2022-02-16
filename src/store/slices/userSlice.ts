@@ -5,17 +5,13 @@ import { createSlice } from "@reduxjs/toolkit";
 import { userAuth } from "api/firebase_api/auth";
 
 const initialState = {
-    userData: {
-        displayName: null as string | null,
-        email: null as string | null,
-        photoURL: null as string | null,
-        uid: null as string | null,
-    },
+    userData: {} as UserData,
     dialogs: [] as Dialog[],
     status: 'success' as 'success' | 'pending',
     error: null as string | null,
     messages: [] as Message[],
-    searchedUSers: [] as UserData[]
+    searchedUSers: [] as UserData[],
+    openChatWhit: {} as UserData
 }
 type Dialog = UserData & {
     messages: {}
@@ -80,11 +76,14 @@ const userSlice = createSlice({
         },
         setSearchedUsers(state, action) {
             state.searchedUSers = action.payload
+        },
+        setOpenChatWhit(state, action) {
+            state.openChatWhit = action.payload
         }
     }
 })
 
-export const { setStatus, setUserData, removeUser, setMessages, setSearchedUsers, setDialogs } = userSlice.actions
+export const { setStatus, setUserData, removeUser, setMessages, setSearchedUsers, setDialogs, setOpenChatWhit } = userSlice.actions
 
 let _newMessageHandler: ((data: any) => void) | null = null
 const newMessageHandlerCreator = (dispatch: any) => {
@@ -167,9 +166,10 @@ export const sendMessageToGeneralChat = (Message: { fromId: string, fromName: st
     async (dispatch: any) => {
         await chatAPI.send(Message)
     }
-export const sendMessageToUser = (Message: { fromId: string, fromName: string, text: string, photoURL: string }, toId: string) =>
+export const sendMessageToUser = (Message: { fromId: string, fromName: string, text: string, photoURL: string | null },
+    to: { id: string, displayName: string | null, photoURL: string | null }) =>
     async (dispatch: any) => {
-        await dialogsAPI.sendMessageToUser(Message, toId)
+        await dialogsAPI.sendMessageToUser(Message, to)
     }
 export const signOut = () =>
     async (dispatch: any) => {

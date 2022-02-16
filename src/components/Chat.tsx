@@ -16,6 +16,7 @@ export const Chat: React.FC<Props> = ({ withUID }) => {
     const uid = useSelector((state: RootStateType) => state.user.userData.uid)
     const photoURL = useSelector((state: RootStateType) => state.user.userData.photoURL) as string
     const messages = useSelector((state: RootStateType) => state.user.messages)
+    const openChatWith = useSelector((state: RootStateType) => state.user.openChatWhit)
 
     const dispatch = useDispatch()
 
@@ -33,10 +34,13 @@ export const Chat: React.FC<Props> = ({ withUID }) => {
     }, [dispatch, withUID])
 
     const onSendClick = () => {
-        if (!!name && !!uid && !!newMessage && newMessage !== '\n') {
+        if (!!name && !!uid && !!newMessage && newMessage !== '\n' && !!withUID) {
             if (withUID !== 'GeneralChat') {
                 // @ts-ignore
-                dispatch(sendMessageToUser({ fromId: uid, fromName: name, text: newMessage, photoURL }, withUID))
+                dispatch(sendMessageToUser(
+                    { fromId: uid, fromName: name, text: newMessage, photoURL },
+                    { id: withUID, displayName: openChatWith.displayName, photoURL: openChatWith.photoURL }
+                ))
             } else {
                 dispatch(sendMessageToGeneralChat({ fromId: uid, fromName: name, text: newMessage, photoURL }))
             }

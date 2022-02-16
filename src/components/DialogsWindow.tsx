@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "store"
-import { onSearchUsers, signOut, startDialogsListening } from "store/slices/userSlice"
+import { onSearchUsers, setOpenChatWhit, signOut, startDialogsListening, UserData } from "store/slices/userSlice"
 import styles from 'styles/DialogsWindow.module.scss'
 import { Settings } from "./Settings"
 import { User } from "./User"
@@ -17,6 +17,7 @@ export const DialogsWindow: React.FC<Props> = ({ changeActiveChatId }) => {
     const searchedUsers = useSelector((state: RootStateType) => state.user.searchedUSers)
 
     const [searchName, setSearchName] = useState('')
+    const [searchResultVisible, setSearchResultVisible] = useState(false)
 
     const logoutHandler = () => {
         dispatch(signOut())
@@ -24,6 +25,7 @@ export const DialogsWindow: React.FC<Props> = ({ changeActiveChatId }) => {
     const onSearch = async () => {
         setSearchName('')
         dispatch(onSearchUsers(searchName))
+        setSearchResultVisible(true)
     }
 
     const [settingMode, setSettingMode] = useState(false)
@@ -31,8 +33,10 @@ export const DialogsWindow: React.FC<Props> = ({ changeActiveChatId }) => {
     const changeSettingMode = () => {
         setSettingMode(!settingMode)
     }
-    const userCardClickHandle = (uid: string | null) => {
-        changeActiveChatId(uid)
+    const userCardClickHandle = (user: UserData) => {
+        dispatch(setOpenChatWhit(user))
+        changeActiveChatId(user.uid)
+        setSearchResultVisible(false)
     }
 
     useEffect(() => {
@@ -60,7 +64,7 @@ export const DialogsWindow: React.FC<Props> = ({ changeActiveChatId }) => {
                         />
                         <button onClick={onSearch}>Search</button>
                     </div>
-                    {searchedUsers.map(user => <User onCLick={userCardClickHandle} key={user.uid} user={user} />)}
+                    {searchResultVisible && searchedUsers.map(user => <User onCLick={userCardClickHandle} key={user.uid} user={user} />)}
                 </div>}
 
             <div>

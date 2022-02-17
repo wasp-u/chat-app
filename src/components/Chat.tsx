@@ -31,12 +31,11 @@ export const Chat: React.FC<Props> = ({ withUID }) => {
         } else {
             dispatch(startMessagesListening())
         }
-    }, [dispatch, withUID])
+    }, [dispatch, withUID, uid])
 
     const onSendClick = () => {
         if (!!name && !!uid && !!newMessage && newMessage !== '\n' && !!withUID) {
             if (withUID !== 'GeneralChat') {
-                // @ts-ignore
                 dispatch(sendMessageToUser(
                     { fromId: uid, fromName: name, text: newMessage, photoURL },
                     { id: withUID, displayName: openChatWith.displayName, photoURL: openChatWith.photoURL }

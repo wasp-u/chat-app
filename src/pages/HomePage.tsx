@@ -15,24 +15,22 @@ type QueryString = {
 
 const HomePage = () => {
 
-    // const dispatch = useDispatch()
     const uid = useSelector((state: RootStateType) => state.user.userData.uid)
     const [searchParams, setSearchParams] = useSearchParams();
     const [activeChatId, setActiveChatId] = useState('' as string | null)
     const dispatch = useDispatch()
+
     useEffect(() => {
         const query: QueryString = {}
         if (activeChatId) {
             query.uid = activeChatId
         }
         setSearchParams(query)
-    }, [activeChatId])
+    }, [activeChatId, setSearchParams])
 
     useEffect(() => {
-        if (uid !== null) {
-            dispatch(getAuthUser())
-        }
-    }, [])
+        dispatch(getAuthUser())
+    }, [dispatch])
 
     const changeActiveChatId = (uid: string | null) => {
         setActiveChatId(uid)
@@ -45,7 +43,7 @@ const HomePage = () => {
                 ? <Chat withUID={activeChatId} />
                 : <div className={styles.empty_message}>
                     <img src={empty_chat_icon} alt="" />
-                    <p>Choose a chat room<br />or <a href=''>create a new conversation</a> </p>
+                    <p>Choose a chat room</p>
                 </div>
             }
         </div>

@@ -1,4 +1,3 @@
-import { UserData } from './../../store/slices/userSlice';
 import { getApp } from "firebase/app";
 import {
     signInWithEmailAndPassword,
@@ -23,15 +22,9 @@ const auth = initializeAuth(getApp(), {
 });
 const provider = new GoogleAuthProvider()
 const subscribeAuthUser = (callback: any) => {
-    let userData: UserData = {
-        displayName: null,
-        email: null,
-        photoURL: null,
-        uid: null,
-    }
     onAuthStateChanged(auth, function (user) {
         if (user) {
-            userData = {
+            const userData = {
                 displayName: user.displayName,
                 email: user.email,
                 photoURL: user.photoURL,
@@ -39,7 +32,6 @@ const subscribeAuthUser = (callback: any) => {
             }
             callback(userData)
         } else {
-            console.log('loh');
         }
     })
 }

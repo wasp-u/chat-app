@@ -1,17 +1,48 @@
+import { UserData } from './../../store/slices/userSlice';
+import { getApp } from "firebase/app";
 import {
-    getAuth,
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
     GoogleAuthProvider,
     signInWithPopup,
     updateProfile,
-    User
+    User,
+    setPersistence,
+    browserSessionPersistence,
+    initializeAuth,
+    indexedDBLocalPersistence,
+    browserLocalPersistence,
+    browserPopupRedirectResolver,
+    onAuthStateChanged
 } from "firebase/auth";
 import './../../firebase'
 
-const auth = getAuth();
+const auth = initializeAuth(getApp(), {
+    persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
+    popupRedirectResolver: browserPopupRedirectResolver,
+});
 const provider = new GoogleAuthProvider()
-
+const subscribeAuthUser = (callback: any) => {
+    let userData: UserData = {
+        displayName: null,
+        email: null,
+        photoURL: null,
+        uid: null,
+    }
+    onAuthStateChanged(auth, function (user) {
+        if (user) {
+            userData = {
+                displayName: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+                uid: user.uid,
+            }
+            callback(userData)
+        } else {
+            console.log('loh');
+        }
+    })
+}
 export const userAuth = {
     updateUserData(name: string) {
         const user = auth.currentUser as User
@@ -25,7 +56,7 @@ export const userAuth = {
     },
     getAuthUser() {
         const user = auth.currentUser
-        // console.log(user);
+        console.log(user);
         if (!!user) {
             return {
                 displayName: user.displayName,
@@ -40,28 +71,38 @@ export const userAuth = {
             uid: null,
         }
     },
+    subscribe(callback: any) {
+        subscribeAuthUser(callback)
+    },
     authMeWithGoogle() {
-        return signInWithPopup(auth, provider).then((result) => {
-            // const credential = GoogleAuthProvider.credentialFromResult(result);
-            const user = result.user
-            return {
-                displayName: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL,
-                uid: user.uid
-            }
-        }).catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log(errorCode);
-            console.log(errorMessage);
-            return {
-                displayName: null,
-                email: null,
-                photoURL: null,
-                uid: null
-            }
-        });
+        return setPersistence(auth, browserSessionPersistence)
+            .then(() => {
+                return signInWithPopup(auth, provider).then((result) => {
+                    // const credential = GoogleAuthProvider.credentialFromResult(result);
+                    // @ts-ignore
+                    const user = result.user
+                    console.log(user);
+
+                    return {
+                        displayName: user.displayName,
+                        email: user.email,
+                        photoURL: user.photoURL,
+                        uid: user.uid
+                    }
+                })
+            })
+            .catch((error) => {
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                console.log(errorCode);
+                console.log(errorMessage);
+                return {
+                    displayName: null,
+                    email: null,
+                    photoURL: null,
+                    uid: null
+                }
+            });
     },
     authMe(email: string, password: string) {
         return signInWithEmailAndPassword(auth, email, password)

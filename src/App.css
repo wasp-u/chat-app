@@ -81,4 +81,5 @@ select {
 
 *{
     font-family: 'Roboto';
+    transition: all ease 0.3s;
 }

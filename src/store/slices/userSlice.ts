@@ -104,6 +104,15 @@ const newDialogsHandlerCreator = (dispatch: any) => {
     }
     return _newDialogsHandler
 }
+let _newAuthUserHandler: ((data: any) => void) | null = null
+const newAuthUserHandlerCreator = (dispatch: any) => {
+    if (_newAuthUserHandler === null) {
+        _newAuthUserHandler = (data) => {
+            dispatch(setUserData(data))
+        }
+    }
+    return _newAuthUserHandler
+}
 
 export const startMessagesListening = (uid?: string, chatId?: string) => async (dispatch: any) => {
     chatAPI.subscribe(newMessageHandlerCreator(dispatch), uid, chatId)
@@ -142,18 +151,9 @@ export const onRegister = (forUserAuth: ForUserAuth) =>
             userInfo.setNewUserData(user)
         })
     }
-// export const getUserData = (id: string) =>
-//     async (dispatch: any) => {
-//         try {
-//             const userData = await userInfo.getUserData(id)
-//             if (!userData) {
-//                 throw new Error('Hmm....')
-//             }
-//             dispatch(setUserData({ userName: userData.userName, userLastName: userData.userLastName, email: userData.email }))
-//         } catch (error) {
-//             console.log(error);
-//         }
-// }
+export const getAuthUser = () => async (dispatch: any) => {
+    userAuth.subscribe(newAuthUserHandlerCreator(dispatch))
+}
 export const updateUserData = (name: string) =>
     async (dispatch: any) => {
         await userAuth.updateUserData(name).then(() => {

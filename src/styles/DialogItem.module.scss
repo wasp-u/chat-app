@@ -1,9 +1,12 @@
 .userCard{
     display: flex;
     padding: 10px;
-    background: #b2bebf4e;
+    background: #009CAB;
+    a{
+        color: rgb(176, 174, 27)
+    }
     &:hover{
-        background: #b2bebf;
+        background: #2F7E9B;
         cursor: pointer;
         border-radius: 10px;
     }

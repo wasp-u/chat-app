@@ -8,7 +8,7 @@
     justify-content: flex-end;
     width: 70%;
     height: 90vh;
-    background: #89c2d96a;
+    background: #02B9AA;
     padding: 20px;
     border-radius: 20px;
     .chat_window{
@@ -22,11 +22,15 @@
         border-radius: 10px;
     }
     button{
-        background: #013a63;
+        background: #2F7E9B;
         border-radius: 10px;
         border: none;
         color: white;
         padding: 5px;
+        &:hover{
+            cursor: pointer;
+            background: #225c71;
+        }
     }
 }
 

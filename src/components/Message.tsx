@@ -24,8 +24,8 @@ export const Message: React.FC<Props> = React.memo(function Message({ message })
         <div
             className={styles.message}
             style={message.fromId === id
-                ? { background: '#468faf', 'marginLeft': 'auto' }
-                : { background: '#89c2d9' }}>
+                ? { background: '#F9F871', 'marginLeft': 'auto' }
+                : { background: '#A8E982' }}>
             <div className={styles.profilePhoto}>
                 {message.photoURL
                     ? <img

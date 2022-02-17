@@ -76,7 +76,7 @@ export const DialogsWindow: React.FC<Props> = ({ changeActiveChatId }) => {
                 <h3>Dialogs:</h3>
                 {dialogs.map(dialog => <DialogItem onCLick={userCardClickHandle} key={dialog.uid} dialog={dialog} />)}
             </div>
-            <button onClick={() => changeActiveChatId('GeneralChat')}>open general chat</button>
+            <button className={styles.generalChatButton} onClick={() => changeActiveChatId('GeneralChat')}>open general chat</button>
         </div>
     )
 }

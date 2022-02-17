@@ -6,6 +6,7 @@ import { Navigate, useSearchParams } from 'react-router-dom'
 import { RootStateType } from 'store'
 import { getAuthUser } from 'store/slices/userSlice'
 import styles from 'styles/HomePage.module.scss'
+import empty_chat_icon from 'icons/empty_messages.svg'
 import './../firebase'
 
 type QueryString = {
@@ -42,7 +43,10 @@ const HomePage = () => {
             <DialogsWindow changeActiveChatId={changeActiveChatId} />
             {searchParams.get('uid')
                 ? <Chat withUID={activeChatId} />
-                : <div>Empty Chat</div>
+                : <div className={styles.empty_message}>
+                    <img src={empty_chat_icon} alt="" />
+                    <p>Choose a chat room<br />or <a href=''>create a new conversation</a> </p>
+                </div>
             }
         </div>
         : <Navigate to={`/login`} />

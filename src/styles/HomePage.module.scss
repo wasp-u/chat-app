@@ -1,8 +1,9 @@
 .homePage{
+    padding-top: 10px;
     display: grid;
     grid-template-columns: 1fr 3fr;
     background: #ffffff;
-    height: 100vh;
+    height: 90vh;
     width: 100vw;
     .sideBar{
         padding-top: 20px;
@@ -16,6 +17,29 @@
             border: none;
             border-radius: 10px;
             padding: 5px;
+        }
+    }
+    .empty_message{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 70%;
+        border-radius: 20px;
+        background: #C6F8FF;
+        img{
+            width: 50px;
+        }
+        p{
+            text-align: center;
+            margin: 8px 0;
+            font-size: 13px;
+            a{
+                color: rgb(70, 70, 188);
+                &:hover{
+                    cursor: pointer;
+                }
+            }
         }
     }
 }

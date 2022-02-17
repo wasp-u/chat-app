@@ -67,7 +67,6 @@ export const Chat: React.FC<Props> = ({ withUID }) => {
 
     return (
         <div >
-            <h1 className={styles.title}>chat</h1>
             <div className={styles.chat}>
                 <div className={styles.chat_window}>
                     {messages.map(message => <Message key={message.id} message={message} />)}

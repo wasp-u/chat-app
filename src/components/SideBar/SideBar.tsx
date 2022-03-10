@@ -10,7 +10,7 @@ import styles from 'styles/SideBar.module.scss'
 import { SideBarHeader } from "./SideBarHeader"
 
 type Props = {
-    changeActiveChatId: (uid: string | null) => void
+    changeActiveChatId: (uid: string) => void
 }
 
 export const SideBar: React.FC<Props> = ({ changeActiveChatId }) => {

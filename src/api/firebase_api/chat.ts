@@ -5,7 +5,6 @@ import { getDatabase } from 'firebase/database';
 import './../../firebase'
 
 const db = getDatabase()
-// ref(db, 'messages/');
 
 const subscribeToMessagesChange = (callback: any, uid?: string, chatId?: string) => {
     if (!!uid && !!chatId) {
@@ -39,8 +38,6 @@ export const chatAPI = {
         subscribeToMessagesChange(callback, uid, chatId)
     },
     unsubscribe(uid: string, chatId: string) {
-        console.log('off');
-
         const messagesListRef = ref(db, `users/${uid}/dialogs/${chatId}/messages`);
         off(messagesListRef)
     }

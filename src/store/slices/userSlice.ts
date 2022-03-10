@@ -3,7 +3,6 @@ import { chatAPI } from './../../api/firebase_api/chat';
 import { userInfo } from 'api/firebase_api/userInfo';
 import { createSlice } from "@reduxjs/toolkit";
 import { userAuth } from "api/firebase_api/auth";
-import { Dispatch } from 'react';
 
 const initialState = {
     userData: {} as UserData,
@@ -36,7 +35,7 @@ export type UserData = {
     displayName: string | null,
     email: string | null,
     photoURL?: string | null,
-    uid: string | null,
+    uid: string,
 }
 
 const userSlice = createSlice({
@@ -59,7 +58,7 @@ const userSlice = createSlice({
                 displayName: null,
                 email: null,
                 photoURL: null,
-                uid: null
+                uid: ''
             }
         },
         setMessages(state, action) {

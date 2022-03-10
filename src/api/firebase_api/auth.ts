@@ -61,7 +61,7 @@ export const userAuth = {
             displayName: null,
             email: null,
             photoURL: null,
-            uid: null,
+            uid: '',
         }
     },
     subscribe(callback: any) {
@@ -92,7 +92,7 @@ export const userAuth = {
                     displayName: null,
                     email: null,
                     photoURL: null,
-                    uid: null
+                    uid: ''
                 }
             });
     },

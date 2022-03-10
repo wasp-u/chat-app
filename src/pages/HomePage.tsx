@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useSearchParams } from 'react-router-dom'
 import { RootStateType } from 'store'
-import { getAuthUser } from 'store/slices/userSlice'
+import { getAuthUser, setOpenChatWith } from 'store/slices/userSlice'
 import styles from 'styles/HomePage.module.scss'
 import './../firebase'
 
@@ -16,23 +16,29 @@ type QueryString = {
 const HomePage = () => {
 
     const uid = useSelector((state: RootStateType) => state.user.userData.uid)
+    const dialogs = useSelector((state: RootStateType) => state.user.dialogs)
     const [searchParams, setSearchParams] = useSearchParams();
     const [activeChatId, setActiveChatId] = useState('' as string | null)
     const dispatch = useDispatch()
 
     useEffect(() => {
-        const query: QueryString = {}
-        if (activeChatId) {
-            query.uid = activeChatId
-        }
-        setSearchParams(query)
-    }, [activeChatId, setSearchParams])
+        const currentDialog = dialogs.filter(d => d.uid === activeChatId)
+        console.log(currentDialog);
+        setOpenChatWith(currentDialog)
+    }, [activeChatId])
+
+    useEffect(() => {
+        setActiveChatId(searchParams.get('uid'))
+    }, [searchParams])
 
     useEffect(() => {
         dispatch(getAuthUser())
     }, [dispatch])
 
-    const changeActiveChatId = (uid: string | null) => {
+    const changeActiveChatId = (uid: string) => {
+        const query: QueryString = {}
+        query.uid = uid
+        setSearchParams(query)
         setActiveChatId(uid)
     }
 

@@ -1,9 +1,8 @@
 .homePage{
-    padding-top: 10px;
     display: grid;
-    grid-template-columns: 1fr 3fr;
-    background: #ffffff;
-    height: 90vh;
+    grid-template-columns: 2fr 5fr;
+    background: #0F0F0F;
+    height: 100vh;
     width: 100vw;
     .sideBar{
         padding-top: 20px;
@@ -26,14 +25,17 @@
         justify-content: center;
         width: 70%;
         border-radius: 20px;
-        background: #C6F8FF;
+        background: #212121;
+        margin: 5px;
         img{
-            width: 50px;
+            width: 60px;
         }
         p{
             text-align: center;
             margin: 8px 0;
-            font-size: 13px;
+            font-size: 16px;
+            font-weight: 500;
+            color: white;
             a{
                 color: rgb(70, 70, 188);
                 &:hover{

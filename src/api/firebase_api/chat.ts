@@ -15,7 +15,7 @@ const subscribeToMessagesChange = (callback: any, uid?: string, chatId?: string)
             callback(data)
         });
     } else {
-        const messagesListRef = query(ref(db, 'messages/'), limitToLast(30));
+        const messagesListRef = query(ref(db, 'generalChat/messages'), limitToLast(30));
         onValue(messagesListRef, (snapshot) => {
             const data = snapshot.val();
             callback(data)
@@ -24,9 +24,9 @@ const subscribeToMessagesChange = (callback: any, uid?: string, chatId?: string)
 }
 
 export const chatAPI = {
-    send(message: { fromId: string, fromName: string, text: string, photoURL: string }) {
+    send(message: { fromId: string, fromName: string, text: string, photoURL?: string | null }) {
         const id = (Timestamp.now().seconds * 1000 + new Date().getTime())
-        set(ref(db, 'messages/' + id), {
+        set(ref(db, 'generalChat/messages/' + id), {
             id: id,
             time: Timestamp.now().seconds * 1000,
             fromId: message.fromId,

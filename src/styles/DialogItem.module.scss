@@ -1,16 +1,16 @@
 .userCard{
     display: flex;
     padding: 10px;
-    background: #009CAB;
+    border-radius: 8px;
     a{
         color: rgb(176, 174, 27)
     }
     &:hover{
-        background: #2F7E9B;
+        background: #363636;
         cursor: pointer;
     }
     .profilePhoto{
-        margin-right: 5px;
+        margin-right: 7px;
         img{
             width: 40px;
             height: 40px;
@@ -27,6 +27,17 @@
             width: 100%;
             display: flex;
             justify-content: space-between;
+            .text{
+                max-width: 240px;
+                overflow: hidden;
+            }
         }
+    }
+}
+
+.userCard_active{
+    background: #0F0F0F;
+    &:hover{
+        background: #0F0F0F;
     }
 }

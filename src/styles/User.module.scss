@@ -1,9 +1,8 @@
 .userCard{
     display: flex;
     padding: 10px;
-    background: #b2bebf4e;
     &:hover{
-        background: #486966;
+        background: #363636;
         cursor: pointer;
         border-radius: 10px;
     }

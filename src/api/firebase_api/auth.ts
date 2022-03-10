@@ -24,6 +24,7 @@ const provider = new GoogleAuthProvider()
 const subscribeAuthUser = (callback: any) => {
     onAuthStateChanged(auth, function (user) {
         if (user) {
+            // console.log(user);
             const userData = {
                 displayName: user.displayName,
                 email: user.email,
@@ -71,7 +72,6 @@ export const userAuth = {
             .then(() => {
                 return signInWithPopup(auth, provider).then((result) => {
                     // const credential = GoogleAuthProvider.credentialFromResult(result);
-                    // @ts-ignore
                     const user = result.user
                     console.log(user);
 

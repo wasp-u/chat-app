@@ -3,15 +3,7 @@ import { getDatabase, ref, set, get, child } from "firebase/database";
 import './../../firebase'
 
 const db = getDatabase();
-// const starCountRef = ref(db, 'users/');
 const dbRef = ref(getDatabase());
-
-// const subscribeToUsersChange = (callback: any) => {
-//     onValue(starCountRef, (snapshot) => {
-//         const data = snapshot.val();
-//         callback(data)
-//     });
-// }
 
 export const userInfo = {
     setNewUserData(user: UserData) {

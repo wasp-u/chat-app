@@ -3,27 +3,29 @@ import { chatAPI } from './../../api/firebase_api/chat';
 import { userInfo } from 'api/firebase_api/userInfo';
 import { createSlice } from "@reduxjs/toolkit";
 import { userAuth } from "api/firebase_api/auth";
+import { Dispatch } from 'react';
 
 const initialState = {
     userData: {} as UserData,
     dialogs: [] as Dialog[],
-    status: 'success' as 'success' | 'pending',
+    status: 'success' as 'success' | 'pending' | 'error',
     error: null as string | null,
-    messages: [] as Message[],
+    messages: [] as MessageType[],
     searchedUSers: [] as UserData[],
     openChatWhit: {} as UserData
 }
 export type Dialog = UserData & {
-    messages: {}
-    lastMessage: Message
+    messages: { [index: string]: MessageType }
 }
-type Message = {
+export type MessageType = {
+    id: number
     fromId: string
     fromName: string
     text: string
     time: number
-    id: number
+    edited?: boolean
     photoURL?: string
+    viewed?: boolean
 }
 type ForUserAuth = {
     email: string
@@ -78,13 +80,13 @@ const userSlice = createSlice({
         setSearchedUsers(state, action) {
             state.searchedUSers = action.payload
         },
-        setOpenChatWhit(state, action) {
+        setOpenChatWith(state, action) {
             state.openChatWhit = action.payload
         }
     }
 })
 
-export const { setStatus, setUserData, removeUser, setMessages, setSearchedUsers, setDialogs, setOpenChatWhit } = userSlice.actions
+export const { setStatus, setUserData, removeUser, setMessages, setSearchedUsers, setDialogs, setOpenChatWith } = userSlice.actions
 
 let _newMessageHandler: ((data: any) => void) | null = null
 const newMessageHandlerCreator = (dispatch: any) => {
@@ -123,11 +125,12 @@ export const startDialogsListening = (uid: string) => async (dispatch: any) => {
 export const onAuth = (email: string, password: string) =>
     async (dispatch: any) => {
         try {
+            dispatch(setStatus('pending'))
             const user = await userAuth.authMe(email, password)
             dispatch(setUserData(user))
+            dispatch(setStatus('success'))
         } catch (error) {
-            // @ts-ignore
-            console.log(error.Message);
+            dispatch(setStatus('error'))
         }
     }
 export const onAuthWithGoogle = () =>
@@ -138,8 +141,10 @@ export const onAuthWithGoogle = () =>
     }
 export const onSearchUsers = (name: string) =>
     async (dispatch: any) => {
+        dispatch(setStatus('pending'))
         const users: UserData[] = await userInfo.searchUser(name)
         dispatch(setSearchedUsers(users))
+        dispatch(setStatus('success'))
     }
 export const onRegister = (forUserAuth: ForUserAuth) =>
     async (dispatch: any) => {
@@ -163,18 +168,40 @@ export const updateUserData = (name: string) =>
             dispatch(setUserData(user))
         })
     }
-export const sendMessageToGeneralChat = (Message: { fromId: string, fromName: string, text: string, photoURL: string }) =>
+export const sendMessageToGeneralChat = (MessageType: { fromId: string, fromName: string, text: string, photoURL?: string | null }) =>
     async (dispatch: any) => {
-        await chatAPI.send(Message)
+        await chatAPI.send(MessageType)
     }
-export const sendMessageToUser = (Message: { fromId: string, fromName: string, text: string, photoURL?: string | null },
+export const sendMessageToUser = (MessageType: { fromId: string, fromName: string, text: string, photoURL?: string | null },
     to: { id: string, displayName: string | null, photoURL?: string | null }) =>
     async (dispatch: any) => {
-        await dialogsAPI.sendMessageToUser(Message, to)
+        await dialogsAPI.sendMessageToUser(MessageType, to)
     }
 export const signOut = () =>
     async (dispatch: any) => {
         await userAuth.signOut()
         dispatch(removeUser())
     }
+export const removeMessageForMe = (myId: string, toUserId: string, messageID: number) =>
+    async (dispatch: any) => {
+        await dialogsAPI.deleteMessageForMe(myId, toUserId, messageID)
+    }
+export const removeMessageForAll = (myId: string, toUserId: string, messageID: number) =>
+    async (dispatch: any) => {
+        await dialogsAPI.deleteMessageForMe(myId, toUserId, messageID)
+        await dialogsAPI.deleteMessageForUser(myId, toUserId, messageID)
+    }
+export const removeDialog = (myId: string, toUserId: string) =>
+    async (dispatch: any) => {
+        await dialogsAPI.deleteDialog(myId, toUserId)
+    }
+export const editMessage = (myId: string, toUserId: string, messageID: number, newMessageText: string) =>
+    async (dispatch: any) => {
+        await dialogsAPI.editMessage(myId, toUserId, messageID, newMessageText)
+    }
+export const messageViewedToggle = (myId: string, toUserId: string, messageID: number) =>
+    async (dispatch: any) => {
+        await dialogsAPI.messageViewedToggle(myId, toUserId, messageID)
+    }
+
 export default userSlice.reducer

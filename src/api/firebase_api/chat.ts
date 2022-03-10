@@ -1,5 +1,5 @@
 import { Timestamp } from 'firebase/firestore';
-import { limitToLast, onValue, query, set } from 'firebase/database';
+import { limitToLast, off, onValue, query, set } from 'firebase/database';
 import { ref } from 'firebase/database';
 import { getDatabase } from 'firebase/database';
 import './../../firebase'
@@ -9,7 +9,7 @@ const db = getDatabase()
 
 const subscribeToMessagesChange = (callback: any, uid?: string, chatId?: string) => {
     if (!!uid && !!chatId) {
-        const messagesListRef = query(ref(db, `users/${uid}/dialogs/${chatId}/messages`), limitToLast(30));
+        const messagesListRef = ref(db, `users/${uid}/dialogs/${chatId}/messages`);
         onValue(messagesListRef, (snapshot) => {
             const data = snapshot.val();
             callback(data)
@@ -38,4 +38,10 @@ export const chatAPI = {
     subscribe(callback: any, uid?: string, chatId?: string) {
         subscribeToMessagesChange(callback, uid, chatId)
     },
+    unsubscribe(uid: string, chatId: string) {
+        console.log('off');
+
+        const messagesListRef = ref(db, `users/${uid}/dialogs/${chatId}/messages`);
+        off(messagesListRef)
+    }
 }

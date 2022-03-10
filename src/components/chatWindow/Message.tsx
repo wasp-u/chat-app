@@ -5,6 +5,7 @@ import { RootStateType } from 'store'
 import styles from 'styles/Chat.module.scss'
 import { DeleteFilled, EditOutlined } from '@ant-design/icons';
 import { MessageType, messageViewedToggle, removeMessageForAll, removeMessageForMe } from 'store/slices/userSlice'
+import { useSearchParams } from 'react-router-dom'
 
 type Props = {
     message: MessageType
@@ -43,9 +44,10 @@ export const Message: React.FC<Props> = React.memo(function Message({ message, o
         </Menu>
     );
     const isMyMessage = id === message.fromId
+    const [searchParams, setSearchParams] = useSearchParams();
 
     useEffect(() => {
-        if (withChatId) {
+        if (withChatId && searchParams.get('uid') !== 'GeneralChat') {
             !isMyMessage && dispatch(messageViewedToggle(id, withChatId, message.id))
         }
     }, [dispatch])

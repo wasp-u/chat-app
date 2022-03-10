@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { RootStateType } from "store"
-import { editMessage, removeDialog, sendMessageToGeneralChat, sendMessageToUser, startMessagesListening, UserData } from "store/slices/userSlice"
+import { editMessage, removeDialog, sendMessageToGeneralChat, sendMessageToUser, startMessagesListening, stopMessagesListening, UserData } from "store/slices/userSlice"
 import { ChatBody } from "./ChatBody"
 import { ChatHeader } from "./ChatHeader"
 import { ChatSendForm } from "./ChatSendForm"
@@ -28,6 +28,10 @@ export const Chat: React.FC<Props> = ({ withUID }) => {
             dispatch(startMessagesListening(userData.uid, withUID))
         } else {
             dispatch(startMessagesListening())
+        }
+        return () => {
+            // @ts-ignore
+            dispatch(stopMessagesListening(userData.uid, withUID))
         }
     }, [dispatch, withUID, userData.uid])
 

@@ -119,6 +119,9 @@ const newAuthUserHandlerCreator = (dispatch: any) => {
 export const startMessagesListening = (uid?: string, chatId?: string) => async (dispatch: any) => {
     chatAPI.subscribe(newMessageHandlerCreator(dispatch), uid, chatId)
 }
+export const stopMessagesListening = (uid: string, chatId: string) => (dispatch: any) => {
+    chatAPI.unsubscribe(uid, chatId)
+}
 export const startDialogsListening = (uid: string) => async (dispatch: any) => {
     dialogsAPI.subscribe(newDialogsHandlerCreator(dispatch), uid)
 }

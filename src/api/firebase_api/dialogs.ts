@@ -1,9 +1,9 @@
-import {child, remove, update} from 'firebase/database'
-import {get} from 'firebase/database'
-import {Timestamp} from 'firebase/firestore'
-import {limitToLast, onValue, query, set} from 'firebase/database'
-import {ref} from 'firebase/database'
-import {getDatabase} from 'firebase/database'
+import { child, remove, update } from 'firebase/database'
+import { get } from 'firebase/database'
+import { Timestamp } from 'firebase/firestore'
+import { limitToLast, onValue, query, set } from 'firebase/database'
+import { ref } from 'firebase/database'
+import { getDatabase } from 'firebase/database'
 import './../../firebase'
 
 const db = getDatabase()
@@ -25,7 +25,7 @@ export const dialogsAPI = {
             text: string
             photoURL?: string | null
         },
-        to: {id: string; displayName: string | null; photoURL?: string | null}
+        to: { id: string; displayName: string | null; photoURL?: string | null }
     ) {
         if (!message.photoURL) {
             message.photoURL = ''
@@ -103,14 +103,23 @@ export const dialogsAPI = {
         remove(ref(db, `users/${toUserId}/dialogs/${myId}`))
     },
     editMessage(myId: string, toUserId: string, messageID: number, newMessageText: string) {
-        const updates: {[index: string]: string} = {}
+        const updates: { [index: string]: string } = {}
         updates[`users/${myId}/dialogs/${toUserId}/messages/${messageID}/text`] = newMessageText
         updates[`users/${toUserId}/dialogs/${myId}/messages/${messageID}/text`] = newMessageText
         update(ref(db), updates)
         set(ref(db, `users/${myId}/dialogs/${toUserId}/messages/${messageID}/edited`), true)
         set(ref(db, `users/${toUserId}/dialogs/${myId}/messages/${messageID}/edited`), true)
     },
-    messageViewedToggle(myId: string, toUserId: string, messageID: number) {
-        set(ref(db, `users/${toUserId}/dialogs/${myId}/messages/${messageID}/viewed`), true)
+    messageViewedToggle(myId: string, withUserId: string, messageId: number) {
+        get(child(dbRef, `users/${withUserId}/dialogs/${myId}/messages/${messageId}`)).then(
+            snapshot => {
+                if (snapshot.exists()) {
+                    set(
+                        ref(db, `users/${withUserId}/dialogs/${myId}/messages/${messageId}/viewed`),
+                        true
+                    )
+                }
+            }
+        )
     },
 }

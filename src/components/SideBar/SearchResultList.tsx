@@ -4,6 +4,7 @@ import { RootStateType } from 'store'
 import { UserData } from 'store/slices/userSlice'
 import { User } from './User'
 import { motion } from 'framer-motion'
+import { CloseOutlined } from '@ant-design/icons'
 
 const variants = {
     visible: (i: number) => ({
@@ -33,10 +34,23 @@ export const SearchResultList: React.FC<Props> = ({ onItemClick, onCloseClick })
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
+                    padding: '0 10px',
                 }}
             >
                 <h3>Users:</h3>
-                <button onClick={onCloseClick}>x</button>
+                <button
+                    style={{ background: 'none', color: '#fff', padding: '0 0 0 30px' }}
+                    onClick={onCloseClick}
+                >
+                    <motion.div
+                        initial={{ rotate: 0 }}
+                        animate={{ rotate: 180 }}
+                        whileHover={{ scale: 1.2, color: '#C9C9C9' }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <CloseOutlined />
+                    </motion.div>
+                </button>
             </div>
             <div>
                 {loadingStatus === 'pending' ? (

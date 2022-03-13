@@ -96,17 +96,11 @@ const newMessageHandlerCreator = (dispatch: any) => {
     return _newMessageHandler
 }
 
-export const startMessagesListening = (uid?: string, chatId?: string) => async (dispatch: any) => {
+export const startMessagesListening = (uid: string, chatId: string) => async (dispatch: any) => {
     chatAPI.subscribe(newMessageHandlerCreator(dispatch), uid, chatId)
 }
 export const stopMessagesListening = (uid: string, chatId: string) => (dispatch: any) => {
     chatAPI.unsubscribe(uid, chatId)
-}
-export const onAuth = (email: string, password: string) => async (dispatch: any) => {
-    dispatch(setStatus('pending'))
-    const user = await userAuth.authMe(email, password)
-    dispatch(setUserData(user))
-    dispatch(setStatus('success'))
 }
 export const onAuthWithGoogle = () => async (dispatch: any) => {
     const user: UserData = await userAuth.authMeWithGoogle()
@@ -142,11 +136,6 @@ export const updateUserData = (name: string) => async (dispatch: any) => {
             dispatch(setUserData(user))
         })
 }
-export const sendMessageToGeneralChat =
-    (MessageType: { fromId: string; fromName: string; text: string; photoURL?: string | null }) =>
-    async (dispatch: any) => {
-        await chatAPI.send(MessageType)
-    }
 export const sendMessageToUser =
     (
         MessageType: {

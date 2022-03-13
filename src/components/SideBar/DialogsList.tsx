@@ -1,7 +1,7 @@
-import {Dialog} from 'store/slices/userSlice'
+import { Dialog } from 'store/slices/userSlice'
 import styles from 'styles/SideBar.module.scss'
-import {DialogItem} from './DialogItem'
-import {motion} from 'framer-motion'
+import { DialogItem } from './DialogItem'
+import { motion } from 'framer-motion'
 
 const variants = {
     visible: (i: number) => ({
@@ -12,27 +12,23 @@ const variants = {
             duration: 0.1,
         },
     }),
-    hidden: {opacity: 0, x: -100},
+    hidden: { opacity: 0, x: -100 },
 }
 
 type DialogsListProps = {
     dialogs: Dialog[]
+    activeDialogId: string
     onItemClick: (uid: string) => void
 }
 
-export const DialogsList: React.FC<DialogsListProps> = ({onItemClick, dialogs}) => {
+export const DialogsList: React.FC<DialogsListProps> = ({
+    onItemClick,
+    dialogs,
+    activeDialogId,
+}) => {
     return (
         <div>
             <h3>Dialogs:</h3>
-            <motion.button
-                initial={{opacity: 0}}
-                animate={{opacity: 1}}
-                transition={{duration: 0.2}}
-                className={styles.generalChatButton}
-                onClick={() => onItemClick('GeneralChat')}
-            >
-                General chat
-            </motion.button>
             {dialogs.map((dialog, index) => (
                 <motion.div
                     key={dialog.uid}
@@ -41,7 +37,12 @@ export const DialogsList: React.FC<DialogsListProps> = ({onItemClick, dialogs}) 
                     variants={variants}
                     custom={index}
                 >
-                    <DialogItem onCLick={onItemClick} key={dialog.uid} dialog={dialog} />
+                    <DialogItem
+                        isActive={activeDialogId === dialog.uid}
+                        onCLick={onItemClick}
+                        key={dialog.uid}
+                        dialog={dialog}
+                    />
                 </motion.div>
             ))}
         </div>

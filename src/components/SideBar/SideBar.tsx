@@ -1,27 +1,31 @@
-import React, {useEffect, useState} from 'react'
-import {useDispatch, useSelector} from 'react-redux'
-import {RootStateType} from 'store'
-import {onSearchUsers, setDialogs, setOpenChatWithId, UserData} from 'store/slices/userSlice'
-import {DialogsList} from './DialogsList'
-import {Search} from './Search'
-import {SearchResultList} from './SearchResultList'
-import {Settings} from './Settings'
-import {SideBarHeader} from './SideBarHeader'
-import {useGetUserDialogs} from 'hooks/useGetUserDialogs'
-import {useSearchParams} from 'react-router-dom'
-import {Loader} from 'components/Loader'
+import React, { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { onSearchUsers, setDialogs, setOpenChatWithId, UserData } from 'store/slices/userSlice'
+import { DialogsList } from './DialogsList'
+import { Search } from './Search'
+import { SearchResultList } from './SearchResultList'
+import { Settings } from './Settings'
+import { SideBarHeader } from './SideBarHeader'
+import { useGetUserDialogs } from 'hooks/useGetUserDialogs'
+import { useSearchParams } from 'react-router-dom'
+import { Loader } from 'components/Loader'
 import styles from 'styles/SideBar.module.scss'
-import {User} from 'firebase/auth'
+import { User } from 'firebase/auth'
+import { RootStateType } from 'store'
 
 type Props = {
     user: User
 }
 
-export const SideBar: React.FC<Props> = React.memo(function SideBar({user}) {
+export const SideBar: React.FC<Props> = React.memo(function SideBar({ user }) {
     const dispatch = useDispatch()
 
-    const userData = user
-    const {dialogsLoadingStatus, dialogs} = useGetUserDialogs(userData.uid)
+    const activeDialogId = useSelector(
+        (state: RootStateType) => state.user.openChatWithId
+    ) as string
+
+    const { dialogsLoadingStatus, dialogs } = useGetUserDialogs(user.uid)
+
     useEffect(() => {
         dialogs && dispatch(setDialogs(dialogs))
     }, [dialogs, dispatch])
@@ -41,7 +45,7 @@ export const SideBar: React.FC<Props> = React.memo(function SideBar({user}) {
 
     const setSearchParams = useSearchParams()[1]
     const openChat = (uid: string) => {
-        setSearchParams({uid})
+        setSearchParams({ uid })
         dispatch(setOpenChatWithId(uid))
     }
 
@@ -53,7 +57,7 @@ export const SideBar: React.FC<Props> = React.memo(function SideBar({user}) {
     return (
         <div className={styles.dialogsWindow}>
             <SideBarHeader
-                userName={userData.displayName}
+                userName={user.displayName}
                 settingMode={settingsVisible}
                 changeSettingMode={changeSettingMode}
             />
@@ -67,7 +71,11 @@ export const SideBar: React.FC<Props> = React.memo(function SideBar({user}) {
             {settingsVisible && <Settings changeSettingMode={changeSettingMode} />}
             {dialogsListVisible &&
                 (dialogsLoadingStatus === 'success' ? (
-                    <DialogsList dialogs={dialogs} onItemClick={openChat} />
+                    <DialogsList
+                        activeDialogId={activeDialogId}
+                        dialogs={dialogs}
+                        onItemClick={openChat}
+                    />
                 ) : (
                     <Loader />
                 ))}

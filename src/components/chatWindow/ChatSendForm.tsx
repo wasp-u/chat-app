@@ -1,16 +1,13 @@
-import {KeyboardEvent, useEffect, useRef, useState} from 'react'
+import { KeyboardEvent, useEffect, useRef, useState } from 'react'
 import styles from 'styles/Chat.module.scss'
-import {SendOutlined} from '@ant-design/icons'
+import { SendOutlined } from '@ant-design/icons'
 
 type ChatSendFormProps = {
     initialValue: string
     onSubmit: (newMessage: string) => void
 }
 
-export const ChatSendForm: React.FC<ChatSendFormProps> = ({
-    onSubmit,
-    initialValue,
-}) => {
+export const ChatSendForm: React.FC<ChatSendFormProps> = ({ onSubmit, initialValue }) => {
     const [value, setValue] = useState(initialValue)
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null)
@@ -43,11 +40,7 @@ export const ChatSendForm: React.FC<ChatSendFormProps> = ({
                 value={value}
                 onChange={e => setValue(e.target.value)}
             />
-            <SendOutlined
-                className={styles.sendButton}
-                rotate={270}
-                onClick={onSubmitHandle}
-            />
+            <SendOutlined className={styles.sendButton} rotate={270} onClick={onSubmitHandle} />
         </div>
     )
 }

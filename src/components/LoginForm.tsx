@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { GoogleOutlined } from '@ant-design/icons'
-import styles from 'styles/Form.module.scss'
-import { Loader } from './Loader'
 import { Link } from 'react-router-dom'
 import { Button } from 'antd'
+import styles from 'styles/Form.module.scss'
 
 type Props = {
     title: string

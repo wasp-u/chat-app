@@ -1,12 +1,12 @@
-import {Dialog} from 'store/slices/userSlice'
-import {orderByValue, query, ref} from 'firebase/database'
-import {useDatabase, useDatabaseObjectData} from 'reactfire'
+import { Dialog } from 'store/slices/userSlice'
+import { ref } from 'firebase/database'
+import { useDatabase, useDatabaseObjectData } from 'reactfire'
 
-export const useGetUserDialogs = (uid?: string) => {
+export const useGetUserDialogs = (uid: string) => {
     const database = useDatabase()
     const dialogsRef = ref(database, `users/${uid}/dialogs/`)
 
-    const {status, data: dialogs} = useDatabaseObjectData<{[index: string]: Dialog}>(dialogsRef)
+    const { status, data: dialogs } = useDatabaseObjectData<{ [index: string]: Dialog }>(dialogsRef)
 
     let dialogsArr = [] as Dialog[]
     for (let key in dialogs) {
@@ -14,5 +14,5 @@ export const useGetUserDialogs = (uid?: string) => {
     }
     dialogsArr.pop()
 
-    return {dialogsLoadingStatus: status, dialogs: dialogsArr}
+    return { dialogsLoadingStatus: status, dialogs: dialogsArr }
 }

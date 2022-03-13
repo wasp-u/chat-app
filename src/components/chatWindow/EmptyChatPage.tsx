@@ -1,10 +1,10 @@
 import styles from 'styles/HomePage.module.scss'
 import empty_chat_icon from 'icons/empty_messages.svg'
-import {motion} from 'framer-motion'
+import { motion } from 'framer-motion'
 
 const variants = {
-    hidden: {opacity: 0},
-    visible: {opacity: 1},
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
 }
 
 export const EmptyChatPage = () => {
@@ -12,7 +12,7 @@ export const EmptyChatPage = () => {
         <motion.div
             initial='hidden'
             animate='visible'
-            transition={{duration: 0.5}}
+            transition={{ duration: 0.5 }}
             variants={variants}
             className={styles.empty_message}
         >

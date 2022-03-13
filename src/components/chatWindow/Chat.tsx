@@ -1,31 +1,28 @@
-import {useEffect, useState} from 'react'
-import {useDispatch, useSelector} from 'react-redux'
-import {RootStateType} from 'store'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { RootStateType } from 'store'
 import {
     editMessage,
     removeDialog,
-    sendMessageToGeneralChat,
     sendMessageToUser,
     startMessagesListening,
     stopMessagesListening,
-    UserData,
 } from 'store/slices/userSlice'
-import {ChatBody} from './ChatBody'
-import {ChatHeader} from './ChatHeader'
-import {ChatSendForm} from './ChatSendForm'
+import { ChatBody } from './ChatBody'
+import { ChatHeader } from './ChatHeader'
+import { ChatSendForm } from './ChatSendForm'
 import styles from 'styles/Chat.module.scss'
-import {Loader} from '../Loader'
-import {motion} from 'framer-motion'
+import { Loader } from '../Loader'
+import { motion } from 'framer-motion'
+import { useGetUser } from 'hooks/useGetUser'
 
 type Props = {}
 
 export const Chat: React.FC<Props> = () => {
     const userData = useSelector((state: RootStateType) => state.user.userData)
-    const withUID = useSelector((state: RootStateType) => state.user.openChatWithId)
+    const withUID = useSelector((state: RootStateType) => state.user.openChatWithId) as string
 
-    const openDialog = useSelector(
-        (state: RootStateType) => state.user.dialogs.filter(d => d.uid === withUID)[0]
-    )
+    const openDialogWith = useGetUser(withUID)
 
     const [initialFormValue, setInitialFormValue] = useState('')
     const [editMessageMode, setEditMessageMode] = useState(false)
@@ -34,64 +31,41 @@ export const Chat: React.FC<Props> = () => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        if (withUID !== 'GeneralChat') {
-            // @ts-ignore
-            dispatch(startMessagesListening(userData.uid, withUID))
-        } else {
-            dispatch(startMessagesListening())
-        }
+        // @ts-ignore
+        dispatch(startMessagesListening(userData.uid, withUID))
         return () => {
             // @ts-ignore
             dispatch(stopMessagesListening(userData.uid, withUID))
         }
     }, [dispatch, withUID, userData.uid])
 
-    const generalChatHeader: UserData = {
-        displayName: 'General Chat',
-        email: '',
-        uid: 'GeneralChat',
-    }
-
     const deleteDialogHandle = () => {
-        if (!!userData.uid && !!openDialog.uid) {
-            dispatch(removeDialog(userData.uid, openDialog.uid))
-        }
+        dispatch(removeDialog(userData.uid, withUID))
     }
 
     const onSendClick = (messageText: string) => {
         if (!!userData.uid && !!userData.displayName) {
             if (editMessageMode) {
-                dispatch(editMessage(userData.uid, openDialog.uid, editMessageId, messageText))
+                dispatch(editMessage(userData.uid, withUID, editMessageId, messageText))
                 setEditMessageMode(false)
                 setInitialFormValue('')
                 setEditMessageId(0)
             } else {
-                if (withUID !== 'GeneralChat') {
-                    dispatch(
-                        sendMessageToUser(
-                            {
-                                fromId: userData.uid,
-                                fromName: userData.displayName,
-                                text: messageText,
-                                photoURL: userData.photoURL,
-                            },
-                            {
-                                id: openDialog.uid,
-                                displayName: openDialog.displayName,
-                                photoURL: openDialog.photoURL,
-                            }
-                        )
-                    )
-                } else {
-                    dispatch(
-                        sendMessageToGeneralChat({
+                dispatch(
+                    sendMessageToUser(
+                        {
                             fromId: userData.uid,
                             fromName: userData.displayName,
                             text: messageText,
                             photoURL: userData.photoURL,
-                        })
+                        },
+                        {
+                            id: withUID,
+                            displayName: openDialogWith.displayName,
+                            photoURL: openDialogWith.photoURL,
+                        }
                     )
-                }
+                )
             }
         }
     }
@@ -102,8 +76,8 @@ export const Chat: React.FC<Props> = () => {
         setEditMessageId(messageId)
     }
     const variants = {
-        visible: {opacity: 1},
-        hidden: {opacity: 0},
+        visible: { opacity: 1 },
+        hidden: { opacity: 0 },
     }
     return withUID ? (
         <motion.div
@@ -111,13 +85,10 @@ export const Chat: React.FC<Props> = () => {
             animate='visible'
             layout
             variants={variants}
-            transition={{duration: 0.1, delay: 0.1}}
+            transition={{ duration: 0.1, delay: 0.1 }}
             className={styles.chat}
         >
-            <ChatHeader
-                chatWithUser={withUID !== 'GeneralChat' ? openDialog : generalChatHeader}
-                deleteDialogHandle={deleteDialogHandle}
-            />
+            <ChatHeader deleteDialogHandle={deleteDialogHandle} />
             <ChatBody onEditHandle={onEditHandle} />
             <ChatSendForm onSubmit={onSendClick} initialValue={initialFormValue} />
         </motion.div>

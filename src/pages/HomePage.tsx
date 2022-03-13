@@ -1,17 +1,17 @@
-import {Chat} from 'components/chatWindow/Chat'
-import {EmptyChatPage} from 'components/chatWindow/EmptyChatPage'
-import {Loader} from 'components/Loader'
-import {SideBar} from 'components/SideBar/SideBar'
-import {useEffect} from 'react'
-import {useDispatch} from 'react-redux'
-import {Navigate, useSearchParams} from 'react-router-dom'
-import {useSigninCheck} from 'reactfire'
-import {setOpenChatWithId, setUserData} from 'store/slices/userSlice'
+import { Chat } from 'components/chatWindow/Chat'
+import { EmptyChatPage } from 'components/chatWindow/EmptyChatPage'
+import { Loader } from 'components/Loader'
+import { SideBar } from 'components/SideBar/SideBar'
+import { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import { Navigate, useSearchParams } from 'react-router-dom'
+import { useSigninCheck } from 'reactfire'
+import { setOpenChatWithId, setUserData } from 'store/slices/userSlice'
 import styles from 'styles/HomePage.module.scss'
 import './../firebase'
 
 const HomePage = () => {
-    const {status, data: signInResult} = useSigninCheck()
+    const { status, data: signInResult } = useSigninCheck()
     let user = signInResult ? signInResult.user : null
 
     const dispatch = useDispatch()

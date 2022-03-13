@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { GoogleOutlined } from '@ant-design/icons'
 import styles from 'styles/Form.module.scss'
 import { Loader } from './Loader'
+import { Link } from 'react-router-dom'
+import { Button } from 'antd'
 
 type Props = {
     title: string
@@ -13,9 +15,9 @@ type Props = {
 
 export const LoginForm: React.FC<Props> = ({
     buttonText,
-    onSubmit,
     title,
     loadingStatus,
+    onSubmit,
     onLoginWithGoogle,
 }) => {
     const [email, setEmail] = useState('')
@@ -26,7 +28,7 @@ export const LoginForm: React.FC<Props> = ({
     }
     return (
         <div className={styles.form}>
-            <p>{title}</p>
+            <h1>{title}</h1>
             <input
                 className={styles.email_input}
                 type='email'
@@ -45,16 +47,23 @@ export const LoginForm: React.FC<Props> = ({
                 style={{
                     display: 'flex',
                     width: '100%',
-                    justifyContent: 'space-around',
+                    justifyContent: 'space-between',
                 }}
             >
-                <button onClick={handleSubmit}>{buttonText}</button>
-                <GoogleOutlined
-                    onClick={onLoginWithGoogle}
-                    className={styles.signInWithGoogleButton}
-                />
-                {loadingStatus === 'loading' && <Loader />}
+                <Button
+                    loading={loadingStatus === 'loading'}
+                    className={styles.signInButton}
+                    onClick={handleSubmit}
+                >
+                    {buttonText}
+                </Button>
+                <Button className={styles.signInButton} onClick={onLoginWithGoogle}>
+                    <GoogleOutlined />
+                </Button>
             </div>
+            <p>
+                or <Link to='/register'>Sign up</Link>
+            </p>
         </div>
     )
 }

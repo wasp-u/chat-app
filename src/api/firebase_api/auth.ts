@@ -21,10 +21,17 @@ const auth = initializeAuth(getApp(), {
     popupRedirectResolver: browserPopupRedirectResolver,
 });
 const provider = new GoogleAuthProvider()
+
+const emptyUser = {
+    displayName: null,
+    email: null,
+    photoURL: null,
+    uid: ''
+}
+
 const subscribeAuthUser = (callback: any) => {
     onAuthStateChanged(auth, function (user) {
         if (user) {
-            // console.log(user);
             const userData = {
                 displayName: user.displayName,
                 email: user.email,
@@ -49,7 +56,6 @@ export const userAuth = {
     },
     getAuthUser() {
         const user = auth.currentUser
-        console.log(user);
         if (!!user) {
             return {
                 displayName: user.displayName,
@@ -57,12 +63,7 @@ export const userAuth = {
                 photoURL: user.photoURL,
                 uid: user.uid,
             }
-        } else return {
-            displayName: null,
-            email: null,
-            photoURL: null,
-            uid: '',
-        }
+        } else return emptyUser
     },
     subscribe(callback: any) {
         subscribeAuthUser(callback)
@@ -73,8 +74,6 @@ export const userAuth = {
                 return signInWithPopup(auth, provider).then((result) => {
                     // const credential = GoogleAuthProvider.credentialFromResult(result);
                     const user = result.user
-                    console.log(user);
-
                     return {
                         displayName: user.displayName,
                         email: user.email,
@@ -88,12 +87,7 @@ export const userAuth = {
                 const errorMessage = error.message;
                 console.log(errorCode);
                 console.log(errorMessage);
-                return {
-                    displayName: null,
-                    email: null,
-                    photoURL: null,
-                    uid: ''
-                }
+                return emptyUser
             });
     },
     authMe(email: string, password: string) {

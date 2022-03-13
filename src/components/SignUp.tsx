@@ -12,7 +12,11 @@ export const SignUp = () => {
 
     return (
         <div>
-            <SignUpForm buttonText='Sign Up' onSubmit={onSignUp} title='Sign Up' />
+            <SignUpForm
+                buttonText='Sign Up'
+                onSubmit={onSignUp}
+                title='Sign Up'
+            />
         </div>
     )
 }

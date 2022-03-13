@@ -1,60 +1,51 @@
-import { Chat } from 'components/chatWindow/Chat'
-import { EmptyChatPage } from 'components/chatWindow/EmptyChatPage'
-import { SideBar } from 'components/SideBar/SideBar'
-import { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { Navigate, useSearchParams } from 'react-router-dom'
-import { RootStateType } from 'store'
-import { getAuthUser, setOpenChatWith } from 'store/slices/userSlice'
+import {Chat} from 'components/chatWindow/Chat'
+import {EmptyChatPage} from 'components/chatWindow/EmptyChatPage'
+import {Loader} from 'components/Loader'
+import {SideBar} from 'components/SideBar/SideBar'
+import {useEffect} from 'react'
+import {useDispatch} from 'react-redux'
+import {Navigate, useSearchParams} from 'react-router-dom'
+import {useSigninCheck} from 'reactfire'
+import {setOpenChatWithId, setUserData} from 'store/slices/userSlice'
 import styles from 'styles/HomePage.module.scss'
 import './../firebase'
 
-type QueryString = {
-    uid?: string
-}
-
 const HomePage = () => {
+    const {status, data: signInResult} = useSigninCheck()
+    let user = signInResult ? signInResult.user : null
 
-    const uid = useSelector((state: RootStateType) => state.user.userData.uid)
-    const dialogs = useSelector((state: RootStateType) => state.user.dialogs)
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [activeChatId, setActiveChatId] = useState('' as string | null)
     const dispatch = useDispatch()
 
     useEffect(() => {
-        const currentDialog = dialogs.filter(d => d.uid === activeChatId)
-        console.log(currentDialog);
-        setOpenChatWith(currentDialog)
-    }, [activeChatId])
+        user &&
+            dispatch(
+                setUserData({
+                    displayName: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    uid: user.uid,
+                })
+            )
+    }, [user, dispatch])
+
+    const [searchParams] = useSearchParams()
 
     useEffect(() => {
-        setActiveChatId(searchParams.get('uid'))
-    }, [searchParams])
+        dispatch(setOpenChatWithId(searchParams.get('uid')))
+    }, [searchParams.get('uid'), dispatch])
 
-    useEffect(() => {
-        dispatch(getAuthUser())
-    }, [dispatch])
-
-    const changeActiveChatId = (uid: string) => {
-        const query: QueryString = {}
-        query.uid = uid
-        setSearchParams(query)
-        setActiveChatId(uid)
+    if (status === 'loading') {
+        return <Loader />
+    } else if (status === 'success' && user) {
+        return (
+            <div className={styles.homePage}>
+                <SideBar user={user} />
+                {searchParams.get('uid') ? <Chat /> : <EmptyChatPage />}
+            </div>
+        )
+    } else {
+        return <Navigate to={`/login`} />
     }
-
-    return (uid
-        ? <div className={styles.homePage}>
-            <SideBar changeActiveChatId={changeActiveChatId} />
-            {searchParams.get('uid')
-                ? <Chat withUID={activeChatId} />
-                : <EmptyChatPage />
-            }
-        </div>
-        : <Navigate to={`/login`} />
-    )
 }
 
 export default HomePage
-
-
-

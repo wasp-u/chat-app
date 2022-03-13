@@ -8,7 +8,9 @@ type Props = {
 }
 export const Settings: React.FC<Props> = ({ changeSettingMode }) => {
     const id = useSelector((state: RootStateType) => state.user.userData.uid)
-    const displayName = useSelector((state: RootStateType) => state.user.userData.displayName)
+    const displayName = useSelector(
+        (state: RootStateType) => state.user.userData.displayName
+    )
     const dispatch = useDispatch()
 
     const submitUserData = (name: string) => {
@@ -20,7 +22,12 @@ export const Settings: React.FC<Props> = ({ changeSettingMode }) => {
 
     return (
         <div>
-            <ChangeUserDataForm displayName={displayName ? displayName : ''} title="Settings" buttonText="Save" onSubmit={submitUserData} />
+            <ChangeUserDataForm
+                displayName={displayName ? displayName : ''}
+                title='Settings'
+                buttonText='Save'
+                onSubmit={submitUserData}
+            />
         </div>
     )
 }

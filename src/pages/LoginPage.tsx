@@ -1,15 +1,15 @@
-import { Login } from "components/Login";
-import { useAuth } from "hooks/useAuth";
-import { Link, Navigate } from "react-router-dom"
+import {Login} from 'components/Login'
+import {Link, Navigate} from 'react-router-dom'
+import {useUser} from 'reactfire'
 import styles from 'styles/LoginPage.module.scss'
 
 function LoginPage() {
+    const {status, data: user} = useUser()
 
-    const authUser = useAuth()
-
-    return (authUser.isAuth
-        ? <Navigate to={`/`} />
-        : <div className={styles.loginPage}>
+    return user ? (
+        <Navigate to={`/`} />
+    ) : (
+        <div className={styles.loginPage}>
             <Login />
             <p>
                 or <Link to='/register'>Sign up</Link>

@@ -1,20 +1,20 @@
-.form{
+.form {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: #3F8B7E;
+    background: #3f8b7e;
     padding: 30px 25px;
-    border: 2px solid #009CAB;
+    border: 2px solid #009cab;
     border-radius: 20px;
     min-width: 250px;
-    p{
+    p {
         font-size: 24px;
         font-weight: 700;
     }
-    input{
+    input {
         width: 100%;
-        background: #F7F7F7;
+        background: #f7f7f7;
         border: 1px solid #828282;
         border-radius: 20px;
         margin-bottom: 13px;
@@ -22,19 +22,32 @@
 
         font-weight: 700;
         font-size: 12px;
-        color: #A8A6A6;
+        color: #a8a6a6;
     }
-    button{
-        background: #354A53;
+    button {
+        background: #354a53;
         color: white;
         border-radius: 20px;
         border: none;
         font-size: 12px;
         font-weight: 700;
-        padding: 5px 25px;
-        &:hover{
+        padding: 0.8em 35px;
+        &:hover {
             cursor: pointer;
-            background: #2F7E9B;
+            background: #2f7e9b;
+        }
+    }
+    .signInWithGoogleButton {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #354a53;
+        color: white;
+        padding: 0.8em;
+        border-radius: 50%;
+        &:hover {
+            cursor: pointer;
+            background: #2f7e9b;
         }
     }
 }

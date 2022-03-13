@@ -1,12 +1,18 @@
+import { signInWithEmailAndPassword } from 'firebase/auth'
+import { useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { onAuth, onAuthWithGoogle } from 'store/slices/userSlice'
+import { useAuth } from 'reactfire'
+import { onAuthWithGoogle } from 'store/slices/userSlice'
 import { LoginForm } from './LoginForm'
 
 export const Login = () => {
     const dispatch = useDispatch()
+    const auth = useAuth()
+    const [loginStatus, setLoginStatus] = useState<'success' | 'loading'>('success')
 
     const onLogin = (email: string, password: string) => {
-        dispatch(onAuth(email, password))
+        setLoginStatus('loading')
+        signInWithEmailAndPassword(auth, email, password).then(() => setLoginStatus('success'))
     }
 
     const onLoginWithGoogle = () => {
@@ -15,7 +21,13 @@ export const Login = () => {
 
     return (
         <div>
-            <LoginForm buttonText='Sign In' onSubmit={onLogin} onLoginWithGoogle={onLoginWithGoogle} title='Login' />
+            <LoginForm
+                buttonText='Sign In'
+                onSubmit={onLogin}
+                onLoginWithGoogle={onLoginWithGoogle}
+                title='Login'
+                loadingStatus={loginStatus}
+            />
         </div>
     )
 }

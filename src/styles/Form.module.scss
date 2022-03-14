@@ -6,7 +6,7 @@
     background: #324b4c;
     padding: 30px 25px 5px 25px;
     border-radius: 20px;
-    width: 27vw;
+    width: min(450px, calc(100vw - 20px));
     a {
         color: #959595;
         &:hover {
@@ -54,5 +54,11 @@
             background: #fff;
             color: #0f0f0f;
         }
+    }
+}
+
+@media (max-width: 768px) {
+    .form {
+        height: 80vh;
     }
 }

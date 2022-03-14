@@ -29,18 +29,19 @@ const HomePage = () => {
     }, [user, dispatch])
 
     const [searchParams] = useSearchParams()
+    const chatIsOpen = !!searchParams.get('uid')
 
     useEffect(() => {
         dispatch(setOpenChatWithId(searchParams.get('uid')))
-    }, [searchParams.get('uid'), dispatch])
+    }, [searchParams, dispatch])
 
     if (status === 'loading') {
         return <Loader />
     } else if (status === 'success' && user) {
         return (
             <div className={styles.homePage}>
-                <SideBar user={user} />
-                {searchParams.get('uid') ? <Chat /> : <EmptyChatPage />}
+                <SideBar chatIsOpen={chatIsOpen} user={user} />
+                {chatIsOpen ? <Chat /> : <EmptyChatPage />}
             </div>
         )
     } else {

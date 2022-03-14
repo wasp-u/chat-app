@@ -1,8 +1,7 @@
-import { Avatar, Dropdown, Menu, Tooltip } from 'antd'
+import { Avatar, Dropdown, Menu } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootStateType } from 'store'
-import styles from 'styles/Chat.module.scss'
 import { DeleteFilled, EditOutlined } from '@ant-design/icons'
 import {
     MessageType,
@@ -10,6 +9,7 @@ import {
     removeMessageForAll,
     removeMessageForMe,
 } from 'store/slices/userSlice'
+import styles from 'styles/Chat.module.scss'
 
 type Props = {
     message: MessageType
@@ -56,7 +56,7 @@ export const Message: React.FC<Props> = React.memo(function Message({ message, o
 
     useEffect(() => {
         !isMyMessage && dispatch(messageViewedToggle(myID, withChatId, message.id))
-    }, [dispatch])
+    }, [dispatch, myID, withChatId, message.id, isMyMessage])
 
     return (
         <div

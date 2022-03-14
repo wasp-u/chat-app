@@ -1,4 +1,4 @@
-import { getApp } from "firebase/app";
+import { getApp } from 'firebase/app'
 import {
     signInWithEmailAndPassword,
     createUserWithEmailAndPassword,
@@ -12,21 +12,21 @@ import {
     indexedDBLocalPersistence,
     browserLocalPersistence,
     browserPopupRedirectResolver,
-    onAuthStateChanged
-} from "firebase/auth";
+    onAuthStateChanged,
+} from 'firebase/auth'
 import './../../firebase'
 
 const auth = initializeAuth(getApp(), {
     persistence: [indexedDBLocalPersistence, browserLocalPersistence, browserSessionPersistence],
     popupRedirectResolver: browserPopupRedirectResolver,
-});
+})
 const provider = new GoogleAuthProvider()
 
 const emptyUser = {
     displayName: null,
     email: null,
     photoURL: null,
-    uid: ''
+    uid: '',
 }
 
 const subscribeAuthUser = (callback: any) => {
@@ -47,11 +47,7 @@ export const userAuth = {
     updateUserData(name: string) {
         const user = auth.currentUser as User
         return updateProfile(user, {
-            displayName: name
-        }).then(() => {
-            console.log('updated');
-        }).catch((error) => {
-            console.log('error update');
+            displayName: name,
         })
     },
     getAuthUser() {
@@ -71,24 +67,24 @@ export const userAuth = {
     authMeWithGoogle() {
         return setPersistence(auth, browserSessionPersistence)
             .then(() => {
-                return signInWithPopup(auth, provider).then((result) => {
+                return signInWithPopup(auth, provider).then(result => {
                     // const credential = GoogleAuthProvider.credentialFromResult(result);
                     const user = result.user
                     return {
                         displayName: user.displayName,
                         email: user.email,
                         photoURL: user.photoURL,
-                        uid: user.uid
+                        uid: user.uid,
                     }
                 })
             })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(errorCode);
-                console.log(errorMessage);
+            .catch(error => {
+                const errorCode = error.code
+                const errorMessage = error.message
+                console.log(errorCode)
+                console.log(errorMessage)
                 return emptyUser
-            });
+            })
     },
     authMe(email: string, password: string) {
         return signInWithEmailAndPassword(auth, email, password)
@@ -98,12 +94,12 @@ export const userAuth = {
                     displayName: user.displayName,
                     email: user.email,
                     photoURL: user.photoURL,
-                    uid: user.uid
+                    uid: user.uid,
                 }
             })
             .catch(error => {
                 throw new Error(error)
-            });
+            })
     },
     registerMe(email: string, password: string) {
         return createUserWithEmailAndPassword(auth, email, password)
@@ -113,13 +109,12 @@ export const userAuth = {
                     displayName: user.displayName,
                     email: user.email,
                     photoURL: user.photoURL,
-                    uid: user.uid
+                    uid: user.uid,
                 }
             })
-            .catch(error => error.message);
+            .catch(error => error.message)
     },
     signOut() {
         auth.signOut()
-    }
+    },
 }
-

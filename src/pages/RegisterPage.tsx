@@ -1,6 +1,6 @@
 import { SignUp } from 'components/SignUp'
 import { useAuth } from 'hooks/useAuth'
-import { Link, Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import styles from 'styles/RegisterPage.module.scss'
 
 function RegisterPage() {

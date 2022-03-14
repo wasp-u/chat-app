@@ -1,10 +1,10 @@
 import { Login } from 'components/Login'
-import { Link, Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 import { useUser } from 'reactfire'
 import styles from 'styles/LoginPage.module.scss'
 
 function LoginPage() {
-    const { status, data: user } = useUser()
+    const { data: user } = useUser()
 
     return user ? (
         <Navigate to={`/`} />

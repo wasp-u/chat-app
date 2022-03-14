@@ -1,6 +1,6 @@
-import {useDispatch} from 'react-redux'
-import {useAuth} from 'reactfire'
-import {removeUser} from 'store/slices/userSlice'
+import { useDispatch } from 'react-redux'
+import { useAuth } from 'reactfire'
+import { removeUser } from 'store/slices/userSlice'
 import styles from 'styles/SideBar.module.scss'
 
 type SideBarHeaderProps = {
@@ -19,7 +19,7 @@ export const SideBarHeader: React.FC<SideBarHeaderProps> = ({
     const signOut = (auth: any) => auth.signOut().then(() => dispatch(removeUser()))
 
     return (
-        <div className={styles.dialogsWindowHeader}>
+        <div className={styles.sideBarHeader}>
             <p>Hello {userName}</p>
             <button onClick={() => signOut(auth)}>Logout</button>
             <button disabled onClick={changeSettingMode}>

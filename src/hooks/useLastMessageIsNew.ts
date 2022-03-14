@@ -7,7 +7,7 @@ export const useLastMessageIsNew = (uid: string, dialogId: string, messageId: nu
     const database = useDatabase()
     const messageRef = ref(database, `users/${dialogId}/dialogs/${uid}/messages/${messageId}`)
 
-    const { status, data: message } = useDatabaseObjectData<MessageType>(messageRef)
+    const { data: message } = useDatabaseObjectData<MessageType>(messageRef)
 
     const [lastMessage, setLastMessage] = useState<MessageType>()
 

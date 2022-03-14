@@ -34,7 +34,7 @@ export const SearchResultList: React.FC<Props> = ({ onItemClick, onCloseClick })
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    padding: '0 10px',
+                    paddingRight: 10,
                 }}
             >
                 <h3>Users:</h3>

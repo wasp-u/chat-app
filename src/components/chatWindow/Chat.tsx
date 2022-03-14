@@ -11,10 +11,11 @@ import {
 import { ChatBody } from './ChatBody'
 import { ChatHeader } from './ChatHeader'
 import { ChatSendForm } from './ChatSendForm'
-import styles from 'styles/Chat.module.scss'
 import { Loader } from '../Loader'
 import { motion } from 'framer-motion'
 import { useGetUser } from 'hooks/useGetUser'
+import styles from 'styles/Chat.module.scss'
+import { useSearchParams } from 'react-router-dom'
 
 type Props = {}
 
@@ -38,8 +39,9 @@ export const Chat: React.FC<Props> = () => {
             dispatch(stopMessagesListening(userData.uid, withUID))
         }
     }, [dispatch, withUID, userData.uid])
-
+    const setSearchParams = useSearchParams()[1]
     const deleteDialogHandle = () => {
+        setSearchParams({})
         dispatch(removeDialog(userData.uid, withUID))
     }
 

@@ -15,9 +15,10 @@ import { RootStateType } from 'store'
 
 type Props = {
     user: User
+    chatIsOpen: boolean
 }
 
-export const SideBar: React.FC<Props> = React.memo(function SideBar({ user }) {
+export const SideBar: React.FC<Props> = React.memo(function SideBar({ user, chatIsOpen }) {
     const dispatch = useDispatch()
 
     const activeDialogId = useSelector(
@@ -55,7 +56,7 @@ export const SideBar: React.FC<Props> = React.memo(function SideBar({ user }) {
     }
 
     return (
-        <div className={styles.dialogsWindow}>
+        <div className={chatIsOpen ? `${styles.sideBar} ${styles.closeForMobile}` : styles.sideBar}>
             <SideBarHeader
                 userName={user.displayName}
                 settingMode={settingsVisible}

@@ -5,14 +5,13 @@ import {
     getDocs,
     getFirestore,
     increment,
-    onSnapshot,
     query,
     setDoc,
     Timestamp,
     updateDoc,
     where,
 } from 'firebase/firestore'
-import { Dialog, MessageType, UserData } from 'store/slices/userSlice'
+import { MessageType } from 'store/slices/userSlice'
 import './../../firebase'
 import { getAuth } from 'firebase/auth'
 
@@ -23,36 +22,32 @@ export const dialogsAPI = {
     async _setMessage(text: string, dialogId: string, message: MessageType) {
         const dialogRef = doc(db, 'dialogs', dialogId, 'messages', message.id)
         await setDoc(dialogRef, message)
-        // const dialogRef = doc(db, 'dialogs', dialogId)
-        // await updateDoc(dialogRef, {
-        //     messages: arrayUnion(message),
-        // })
     },
-    async sendMessage(text: string, fromUser: UserData, toUser: UserData) {
+    async sendMessage(text: string, toUserId: string) {
+        const fromUserId = auth.currentUser?.uid as string
         // let url = `https://us-central1-chat-c6cf2.cloudfunctions.net/sendMessage?text=${text}&fromUserId=${fromUserId}&toUserId=${toUserId}`
         // await fetch(url)
         const message = {
             id: Timestamp.now().seconds * 1000 + new Date().getTime().toString(),
             text: text,
             time: Timestamp.now().seconds * 1000,
-            fromId: fromUser.uid,
+            fromId: fromUserId,
             viewed: false,
             edited: false,
         }
         const q = query(
             collection(db, 'dialogs'),
             where('usersIdInDialog', 'in', [
-                [fromUser.uid, toUser.uid],
-                [toUser.uid, fromUser.uid],
+                [fromUserId, toUserId],
+                [toUserId, fromUserId],
             ])
         )
         const dialog = await getDocs(q)
         let currentDialogId = ''
         if (dialog.empty) {
-            currentDialogId = `${fromUser.uid}&${toUser.uid}`
+            currentDialogId = `${fromUserId}&${toUserId}`
             await setDoc(doc(db, 'dialogs', currentDialogId), {
-                usersInDialog: [fromUser, toUser],
-                usersIdInDialog: [fromUser.uid, toUser.uid],
+                usersIdInDialog: [fromUserId, toUserId],
                 id: currentDialogId,
             })
             await this._setMessage(text, currentDialogId, message)
@@ -64,20 +59,20 @@ export const dialogsAPI = {
             lastMessageId: message.id,
         })
         await updateDoc(doc(db, 'dialogs', currentDialogId), {
-            [`newMessagesCount.${toUser.uid}`]: increment(1),
+            [`newMessagesCount.${toUserId}`]: increment(1),
         })
     },
-    subscribe(callback: any, uid: string) {
-        const q = query(collection(db, 'dialogs'), where('usersIdInDialog', 'array-contains', uid))
-        const unsub = onSnapshot(q, docs => {
-            const data = [] as Dialog[]
-            docs.forEach(doc => {
-                data.push(doc.data() as Dialog)
-            })
-            callback(data)
-        })
-        return unsub
-    },
+    // subscribe(callback: any) {
+    //     const uid = auth.currentUser?.uid
+    //     const q = query(collection(db, 'dialogs'), where('usersIdInDialog', 'array-contains', uid))
+    //     return onSnapshot(q, docs => {
+    //         const data = [] as Dialog[]
+    //         docs.forEach(doc => {
+    //             data.push(doc.data() as Dialog)
+    //         })
+    //         callback(data)
+    //     })
+    // },
     async deleteMessage(dialogId: string, messageId: string) {
         await deleteDoc(doc(db, `dialogs/${dialogId}/messages`, messageId))
     },

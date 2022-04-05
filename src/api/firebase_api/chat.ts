@@ -5,14 +5,13 @@ const db = getFirestore()
 
 const subscribeToMessagesChange = (callback: any, dialogId: string) => {
     const q = query(collection(db, `dialogs/${dialogId}/messages`))
-    const unsubscribe = onSnapshot(q, querySnapshot => {
+    return onSnapshot(q, querySnapshot => {
         const messages = [] as any[]
         querySnapshot.forEach(doc => {
             messages.push(doc.data())
         })
         callback(messages)
     })
-    return unsubscribe
 }
 
 export const chatAPI = {

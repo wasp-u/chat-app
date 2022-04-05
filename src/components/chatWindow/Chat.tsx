@@ -1,50 +1,39 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { RootStateType } from 'store'
+import { useDispatch } from 'react-redux'
 import {
     editMessage,
     messageViewedToggle,
     OpenChat,
     removeMessage,
     sendMessage,
-    setMessages,
     setOpenChat,
-    UserData,
+    startMessagesListening,
+    stopMessagesListening,
 } from 'store/slices/userSlice'
 import { ChatBody } from './ChatBody'
 import { ChatHeader } from './ChatHeader'
 import { ChatSendForm } from './ChatSendForm'
 import { useSearchParams } from 'react-router-dom'
 import { Stack } from '@mui/material'
-import { useGetMessages } from '../../hooks/useGetMessages'
 
 type Props = {
     openChat: OpenChat
 }
 
-export const Chat: React.FC<Props> = ({ openChat }) => {
-    const userData = useSelector((state: RootStateType) => state.user.userData) as UserData
+export const Chat: React.FC<Props> = React.memo(({ openChat }) => {
     const [initialFormValue, setInitialFormValue] = useState('')
     const [editMessageMode, setEditMessageMode] = useState(false)
     const [editMessageId, setEditMessageId] = useState('')
 
     const dispatch = useDispatch()
-    const { status, messages } = useGetMessages(openChat.dialogId)
 
     useEffect(() => {
-        messages && dispatch(setMessages(messages))
+        openChat.dialogId && dispatch(startMessagesListening(openChat.dialogId))
         return () => {
-            dispatch(setMessages([]))
+            openChat.dialogId && dispatch(stopMessagesListening(openChat.dialogId))
+            // dispatch(setMessages([]))
         }
-    }, [messages])
-
-    // useEffect(() => {
-    //     openChat.dialogId && dispatch(startMessagesListening(openChat.dialogId))
-    //     return () => {
-    //         openChat.dialogId && dispatch(stopMessagesListening(openChat.dialogId))
-    //         dispatch(setMessages([]))
-    //     }
-    // }, [dispatch, openChat.dialogId])
+    }, [dispatch, openChat.dialogId])
 
     const setSearchParams = useSearchParams()[1]
     const deleteDialogHandler = () => {
@@ -66,7 +55,7 @@ export const Chat: React.FC<Props> = ({ openChat }) => {
                 dispatch(editMessage(openChat.dialogId, editMessageId, messageText))
             deactivateEditMode()
         } else {
-            openChat.withUser && dispatch(sendMessage(messageText, userData, openChat.withUser))
+            openChat.withUser && dispatch(sendMessage(messageText, openChat.withUser.uid))
         }
     }
 
@@ -81,6 +70,7 @@ export const Chat: React.FC<Props> = ({ openChat }) => {
         setEditMessageMode(true)
         setEditMessageId(messageId)
     }
+
     return (
         <Stack
             direction='column'
@@ -107,4 +97,4 @@ export const Chat: React.FC<Props> = ({ openChat }) => {
             />
         </Stack>
     )
-}
+})

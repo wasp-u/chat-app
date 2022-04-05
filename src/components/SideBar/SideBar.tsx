@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import {
+    LoadingType,
     onSearchUsers,
     setDialogs,
     setOpenChat,
@@ -26,6 +27,7 @@ export const SideBar: React.FC<Props> = ({ uid }) => {
 
     const [settingsVisible, setSettingsVisible] = useState(false)
     const [searchResultVisible, setSearchResultVisible] = useState(false)
+    const [loadingStatus, setLoadingStatus] = useState<LoadingType>('success')
     const dialogsListVisible = !settingsVisible && !searchResultVisible
 
     const { status, dialogs } = useGetUserDialogs(uid)
@@ -43,9 +45,11 @@ export const SideBar: React.FC<Props> = ({ uid }) => {
         setSettingsVisible(!settingsVisible)
     }
 
-    const onSearch = (searchedValue: string) => {
-        dispatch(onSearchUsers(searchedValue))
+    const onSearch = async (searchedValue: string) => {
+        setLoadingStatus('loading')
         setSearchResultVisible(true)
+        await dispatch(onSearchUsers(searchedValue))
+        setLoadingStatus('success')
     }
 
     const onSearchResultItemClick = (user: UserData) => {
@@ -77,6 +81,7 @@ export const SideBar: React.FC<Props> = ({ uid }) => {
             <Search onSearch={onSearch} />
             {searchResultVisible && (
                 <SearchResultList
+                    loadingStatus={loadingStatus}
                     onItemClick={onSearchResultItemClick}
                     onCloseClick={() => setSearchResultVisible(false)}
                 />

@@ -29,7 +29,6 @@ export const userInfo = {
     },
     async getUser(uid: string) {
         const user = await getDoc(doc(db, 'users', uid))
-        console.log(user.data())
         return user.data() as UserData
     },
     async searchUser(searchValue: string) {
@@ -58,7 +57,7 @@ export const userInfo = {
             last_changed: Timestamp.now().seconds * 1000,
         }
 
-        onValue(ref(dbRef, '.info/connected'), snapshot => {
+        return onValue(ref(dbRef, '.info/connected'), snapshot => {
             if (snapshot.val() == false) {
                 updateDoc(doc(db, 'users', uid), {
                     status: isOfflineForFirestore,

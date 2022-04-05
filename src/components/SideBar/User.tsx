@@ -1,30 +1,37 @@
-import Avatar from 'antd/lib/avatar/avatar'
-import {UserData} from 'store/slices/userSlice'
-import styles from 'styles/User.module.scss'
+import { Avatar, Stack, Typography } from '@mui/material'
+import { UserData } from 'store/slices/userSlice'
 
 type UserProps = {
     user: UserData
     onCLick: (user: UserData) => void
 }
 
-export const User: React.FC<UserProps> = ({user, onCLick}) => {
+export const User: React.FC<UserProps> = ({ user, onCLick }) => {
     return (
-        <div className={styles.userCard} onClick={() => onCLick(user)}>
-            <div className={styles.profilePhoto}>
-                {user.photoURL ? (
-                    <img
-                        style={{width: 40, borderRadius: '50%'}}
-                        src={user.photoURL}
-                        alt='avatar'
-                    />
-                ) : (
-                    <Avatar size={40}>{user.displayName ? user.displayName[0] : 'U'}</Avatar>
-                )}
-            </div>
-            <div>
-                <p>{user.displayName}</p>
-                <p>{user.email}</p>
-            </div>
-        </div>
+        <Stack
+            direction='row'
+            alignItems='center'
+            spacing={2}
+            sx={{
+                p: 2,
+                borderRadius: 2,
+                '&:hover': {
+                    bgcolor: 'action.hover',
+                    cursor: 'pointer',
+                },
+            }}
+            onClick={() => onCLick(user)}>
+            {user.photoURL ? (
+                <Avatar alt='user' src={user.photoURL} />
+            ) : (
+                <Avatar>{user.displayName ? user.displayName[0] : 'U'}</Avatar>
+            )}
+            <Stack>
+                <Typography color='text.primary'>{user.displayName}</Typography>
+                <Typography color='text.primary' variant={'body2'}>
+                    {user.email}
+                </Typography>
+            </Stack>
+        </Stack>
     )
 }

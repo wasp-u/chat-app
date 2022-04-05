@@ -1,29 +1,70 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Message } from './Message'
 import { useSelector } from 'react-redux'
 import { RootStateType } from 'store'
-import styles from 'styles/Chat.module.scss'
+import { Box } from '@mui/material'
+import NoMessageData from '../../common/NoMessageData'
 
 type Props = {
-    onEditHandle: (messageText: string, messageId: number) => void
+    editMessageId: string
+    deleteMessageHandler: (messageId: string) => void
+    messageViewedToggleHandler: (messageId: string) => void
+    editMessageHandler: (messageText: string, messageId: string) => void
 }
 
-export const ChatBody: React.FC<Props> = ({ onEditHandle }) => {
+export const ChatBody: React.FC<Props> = ({
+    editMessageId,
+    editMessageHandler,
+    deleteMessageHandler,
+    messageViewedToggleHandler,
+}) => {
+    const myId = useSelector((state: RootStateType) => state.user.userData?.uid) as string
     const messages = useSelector((state: RootStateType) => state.user.messages)
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
+    const [isAutoscroll, setIsAutoscroll] = useState(false)
+
     const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+        isAutoscroll && messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
     }
+    const scrollHandler = (e: React.UIEvent<HTMLElement>) => {
+        const element = e.currentTarget
+        if (element.scrollHeight - element.scrollTop - element.clientHeight <= 100) {
+            !isAutoscroll && setIsAutoscroll(true)
+        } else {
+            isAutoscroll && setIsAutoscroll(false)
+        }
+    }
+
     useEffect(scrollToBottom, [messages])
 
-    return (
-        <div className={styles.chat_window}>
-            <div style={{ height: '200px' }}></div>
-            {messages.map(message => (
-                <Message key={message.id} message={message} onEditHandle={onEditHandle} />
-            ))}
-            <div ref={messagesEndRef} />
-        </div>
-    )
+    if (messages && messages.length !== 0) {
+        return (
+            <Box
+                onScroll={scrollHandler}
+                sx={{
+                    mt: 'auto',
+                    px: 4,
+                    overflowY: 'scroll',
+                    display: 'flex',
+                    width: '100%',
+                    flexDirection: 'column',
+                }}>
+                {messages.map(message => (
+                    <Message
+                        key={message.id}
+                        message={message}
+                        isMyMessage={myId === message.fromId}
+                        isEditing={message.id === editMessageId}
+                        onEditHandle={editMessageHandler}
+                        deleteHandler={deleteMessageHandler}
+                        messageViewedToggleHandler={messageViewedToggleHandler}
+                    />
+                ))}
+                <div ref={messagesEndRef} />
+            </Box>
+        )
+    } else {
+        return <NoMessageData />
+    }
 }

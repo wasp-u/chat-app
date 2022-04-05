@@ -1,7 +1,12 @@
-import { Dialog } from 'store/slices/userSlice'
+import React from 'react'
+import { RootStateType } from 'store'
+import { useSelector } from 'react-redux'
+import { Dialog, UserData } from 'store/slices/userSlice'
+import { Loader } from 'common/Loader'
 import { DialogItem } from './DialogItem'
 import { motion } from 'framer-motion'
-import { Empty } from 'antd'
+import { Stack, Typography } from '@mui/material'
+import NoData from '../../common/NoData'
 
 const variants = {
     visible: (i: number) => ({
@@ -17,49 +22,46 @@ const variants = {
 
 type DialogsListProps = {
     dialogs: Dialog[]
-    activeDialogId: string
-    onItemClick: (uid: string) => void
+    status: 'loading' | 'success' | 'error'
+    onItemClick: (user: UserData, dialogId: string) => void
 }
 
-export const DialogsList: React.FC<DialogsListProps> = ({
-    onItemClick,
+export const DialogsList: React.FC<DialogsListProps> = React.memo(function DialogsList({
     dialogs,
-    activeDialogId,
-}) => {
-    if (dialogs.length !== 0) {
+    status,
+    onItemClick,
+}) {
+    const activeDialogId = useSelector(
+        (state: RootStateType) => state.user.openChat?.withUser.uid
+    ) as string
+
+    if (status === 'loading') {
+        return <Loader />
+    }
+    if (dialogs && dialogs.length !== 0) {
         return (
-            <div style={{ overflow: 'auto' }}>
-                <h3 style={{ marginBottom: 5 }}>Dialogs:</h3>
+            <Stack overflow={'scroll'}>
+                <Typography variant='body1' color='text.primary'>
+                    Dialogs:
+                </Typography>
                 {dialogs.map((dialog, index) => (
                     <motion.div
-                        key={dialog.uid}
+                        key={dialog.id}
                         initial='hidden'
                         animate='visible'
                         variants={variants}
-                        custom={index}
-                    >
+                        custom={index}>
                         <DialogItem
-                            isActive={activeDialogId === dialog.uid}
+                            isActive={dialog.usersIdInDialog.includes(activeDialogId)}
                             onCLick={onItemClick}
-                            key={dialog.uid}
+                            key={dialog.id}
                             dialog={dialog}
                         />
                     </motion.div>
                 ))}
-            </div>
+            </Stack>
         )
     } else {
-        return (
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    height: '100%',
-                }}
-            >
-                <Empty style={{ color: 'gray' }} />
-            </div>
-        )
+        return <NoData />
     }
-}
+})

@@ -1,17 +1,22 @@
-import { Login } from 'components/Login'
-import { Navigate } from 'react-router-dom'
-import { useUser } from 'reactfire'
-import styles from 'styles/LoginPage.module.scss'
+import {Login} from 'components/SignInScreen/Login'
+import {Navigate} from 'react-router-dom'
+import {useSigninCheck} from 'reactfire'
+import {Box} from "@mui/material";
 
 function LoginPage() {
-    const { data: user } = useUser()
+    const {status, data: signInResult} = useSigninCheck()
 
-    return user ? (
-        <Navigate to={`/`} />
+    return status === 'success' && signInResult.signedIn ? (
+        <Navigate to={`/`}/>
     ) : (
-        <div className={styles.loginPage}>
-            <Login />
-        </div>
+        <Box sx={{
+            height: '100vh',
+            width: '100vw',
+            bgcolor: 'background.default'
+        }}>
+            <Login/>
+        </Box>
+
     )
 }
 

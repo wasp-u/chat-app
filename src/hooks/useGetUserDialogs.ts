@@ -1,18 +1,16 @@
 import { Dialog } from 'store/slices/userSlice'
-import { ref } from 'firebase/database'
-import { useDatabase, useDatabaseObjectData } from 'reactfire'
+import { useFirestore, useFirestoreCollectionData } from 'reactfire'
+import { collection, query, where } from 'firebase/firestore'
 
-export const useGetUserDialogs = (uid: string) => {
-    const database = useDatabase()
-    const dialogsRef = ref(database, `users/${uid}/dialogs/`)
+export const useGetUserDialogs = (uid?: string) => {
+    const firestore = useFirestore()
 
-    const { status, data: dialogs } = useDatabaseObjectData<{ [index: string]: Dialog }>(dialogsRef)
-
-    let dialogsArr = [] as Dialog[]
-    for (let key in dialogs) {
-        dialogsArr.push(dialogs[key])
+    let q = query(collection(firestore, 'dialogs'), where('usersIdInDialog', 'array-contains', ''))
+    if (uid) {
+        q = query(collection(firestore, 'dialogs'), where('usersIdInDialog', 'array-contains', uid))
     }
-    dialogsArr.pop()
 
-    return { dialogsLoadingStatus: status, dialogs: dialogsArr }
+    const { status, data: dialogs } = useFirestoreCollectionData(q)
+
+    return { status, dialogs: dialogs as Dialog[] }
 }

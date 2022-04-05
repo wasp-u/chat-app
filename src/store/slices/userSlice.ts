@@ -1,30 +1,16 @@
 import { dialogsAPI } from './../../api/firebase_api/dialogs'
-import { chatAPI } from './../../api/firebase_api/chat'
 import { userInfo } from 'api/firebase_api/userInfo'
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { userAuth } from 'api/firebase_api/auth'
 
 const initialState = {
-    userData: {} as UserData,
+    userData: null as UserData | null,
     dialogs: [] as Dialog[],
-    dataStatus: 'success' as 'success' | 'pending' | 'error',
+    dataStatus: 'success' as LoadingType,
     error: null as string | null,
     messages: [] as MessageType[],
-    searchedUSers: [] as UserData[],
-    openChatWithId: null as string | null,
-}
-export type Dialog = UserData & {
-    messages: { [index: string]: MessageType }
-}
-export type MessageType = {
-    id: number
-    fromId: string
-    fromName: string
-    text: string
-    time: number
-    edited?: boolean
-    photoURL?: string
-    viewed?: boolean
+    searchedUsers: [] as UserData[],
+    openChat: null as OpenChat | null,
 }
 type ForUserAuth = {
     email: string
@@ -32,46 +18,63 @@ type ForUserAuth = {
     name: string
 }
 export type UserData = {
+    uid: string
     displayName: string | null
     email: string | null
     photoURL?: string | null
-    uid: string
+    status: {
+        state: 'online' | 'offline'
+        last_changed: number
+    }
+}
+export type LoadingType = 'success' | 'loading' | 'error'
+export type Dialog = {
+    lastMessageId: string
+    usersIdInDialog: [string, string]
+    usersInDialog: [UserData, UserData]
+    id: string
+    newMessagesCount: {
+        [key: string]: number
+    }
+}
+export type OpenChat = {
+    withUser: UserData
+    dialogId: string
+}
+export type MessageType = {
+    id: string
+    fromId: string
+    text: string
+    time: number
+    edited: boolean
+    viewed: boolean
 }
 
 const userSlice = createSlice({
     name: 'user',
     initialState: initialState,
     reducers: {
-        setStatus(state, action) {
+        setStatus(state, action: PayloadAction<LoadingType>) {
             state.dataStatus = action.payload
         },
-        setUserData(state, action) {
+        setUserData(state, action: PayloadAction<UserData>) {
             state.userData = action.payload
         },
         removeUser(state) {
-            state.userData = {
-                displayName: null,
-                email: null,
-                photoURL: null,
-                uid: '',
-            }
+            state.userData = null
             state.dialogs = []
         },
         setMessages(state, action) {
-            let messagesArr = []
-            for (let item in action.payload) {
-                messagesArr.push(action.payload[item])
-            }
-            state.messages = messagesArr
+            state.messages = action.payload
         },
-        setDialogs(state, action) {
+        setDialogs(state, action: PayloadAction<Dialog[]>) {
             state.dialogs = action.payload
         },
-        setSearchedUsers(state, action) {
-            state.searchedUSers = action.payload
+        setSearchedUsers(state, action: PayloadAction<UserData[]>) {
+            state.searchedUsers = [...action.payload]
         },
-        setOpenChatWithId(state, action) {
-            state.openChatWithId = action.payload
+        setOpenChat(state, action: PayloadAction<OpenChat | null>) {
+            state.openChat = action.payload
         },
     },
 })
@@ -83,92 +86,67 @@ export const {
     setMessages,
     setSearchedUsers,
     setDialogs,
-    setOpenChatWithId,
+    setOpenChat,
 } = userSlice.actions
 
-let _newMessageHandler: ((data: any) => void) | null = null
-const newMessageHandlerCreator = (dispatch: any) => {
-    if (_newMessageHandler === null) {
-        _newMessageHandler = data => {
-            dispatch(setMessages(data))
-        }
-    }
-    return _newMessageHandler
-}
-
-export const startMessagesListening = (uid: string, chatId: string) => async (dispatch: any) => {
-    chatAPI.subscribe(newMessageHandlerCreator(dispatch), uid, chatId)
-}
-export const stopMessagesListening = (uid: string, chatId: string) => (dispatch: any) => {
-    chatAPI.unsubscribe(uid, chatId)
-}
+// let _newMessageHandler: ((data: any) => void) | null = null
+// const newMessageHandlerCreator = (dispatch: any) => {
+//     if (_newMessageHandler === null) {
+//         _newMessageHandler = data => {
+//             dispatch(setMessages(data))
+//         }
+//     }
+//     return _newMessageHandler
+// }
+//
+// export const startMessagesListening = (dialodId: string) => async (dispatch: any) => {
+//     chatAPI.subscribe(newMessageHandlerCreator(dispatch), dialodId)
+// }
+// export const stopMessagesListening = (dialodId: string) => (dispatch: any) => {
+//     const unsb = chatAPI.subscribe(newMessageHandlerCreator(dispatch), dialodId)
+//     unsb()
+// }
 export const onAuthWithGoogle = () => async (dispatch: any) => {
-    const user: UserData = await userAuth.authMeWithGoogle()
+    const newUser = await userAuth.authMeWithGoogle()
+    const user: UserData = await userInfo.getUser(newUser.uid)
     dispatch(setUserData(user))
-    userInfo.setNewUserData(user)
 }
 export const onSearchUsers = (name: string) => async (dispatch: any) => {
-    dispatch(setStatus('pending'))
-    const users: UserData[] = await userInfo.searchUser(name)
+    dispatch(setStatus('loading'))
+    const users = await userInfo.searchUser(name)
     dispatch(setSearchedUsers(users))
     dispatch(setStatus('success'))
 }
 export const onRegister = (forUserAuth: ForUserAuth) => async (dispatch: any) => {
-    await userAuth.registerMe(forUserAuth.email, forUserAuth.password)
-    userAuth
-        .updateUserData(forUserAuth.name)
-        .then(() => {
-            return userAuth.getAuthUser()
-        })
-        .then(user => {
-            dispatch(setUserData(user))
-            userInfo.setNewUserData(user)
-        })
+    await userAuth.registerMe(forUserAuth.email, forUserAuth.password, forUserAuth.name)
 }
-export const updateUserData = (name: string) => async (dispatch: any) => {
-    await userAuth
-        .updateUserData(name)
-        .then(() => {
-            return userAuth.getAuthUser() as UserData
-        })
-        .then(user => {
-            userInfo.setNewUserData(user)
-            dispatch(setUserData(user))
-        })
+export const getAuthUser = (uid: string) => async (dispatch: any) => {
+    const user = await userInfo.getUser(uid)
+    dispatch(setUserData(user))
 }
-export const sendMessageToUser =
-    (
-        MessageType: {
-            fromId: string
-            fromName: string
-            text: string
-            photoURL?: string | null
-        },
-        to: { id: string; displayName: string | null; photoURL?: string | null }
-    ) =>
-    async (dispatch: any) => {
-        await dialogsAPI.sendMessageToUser(MessageType, to)
+export const sendMessage =
+    (text: string, fromUser: UserData, toUser: UserData) => async (dispatch: any) => {
+        await dialogsAPI.sendMessage(text, fromUser, toUser)
     }
-export const removeMessageForMe =
-    (myId: string, toUserId: string, messageID: number) => async (dispatch: any) => {
-        await dialogsAPI.deleteMessageForMe(myId, toUserId, messageID)
-    }
-export const removeMessageForAll =
-    (myId: string, toUserId: string, messageID: number) => async (dispatch: any) => {
-        await dialogsAPI.deleteMessageForMe(myId, toUserId, messageID)
-        await dialogsAPI.deleteMessageForUser(myId, toUserId, messageID)
-    }
-export const removeDialog = (myId: string, toUserId: string) => async (dispatch: any) => {
-    await dialogsAPI.deleteDialog(myId, toUserId)
+export const removeMessage = (dialogId: string, messageId: string) => async (dispatch: any) => {
+    await dialogsAPI.deleteMessage(dialogId, messageId)
+}
+export const removeDialog = (dialogId: string) => async (dispatch: any) => {
+    // await dialogsAPI.deleteDialog(dialogId)
 }
 export const editMessage =
-    (myId: string, toUserId: string, messageID: number, newMessageText: string) =>
-    async (dispatch: any) => {
-        await dialogsAPI.editMessage(myId, toUserId, messageID, newMessageText)
+    (dialogId: string, messageId: string, newMessageText: string) => async (dispatch: any) => {
+        await dialogsAPI.editMessage(dialogId, messageId, newMessageText)
     }
 export const messageViewedToggle =
-    (myId: string, toUserId: string, messageID: number) => async (dispatch: any) => {
-        await dialogsAPI.messageViewedToggle(myId, toUserId, messageID)
+    (dialogId: string, messageId: string) => async (dispatch: any) => {
+        await dialogsAPI.messageViewedToggle(dialogId, messageId)
     }
+export const onlineStatusToggle = (uid: string) => async (dispatch: any) => {
+    await userInfo.onlineStatusToggle(uid)
+}
+export const setOfflineStatus = (uid: string) => async (dispatch: any) => {
+    await userInfo.setOfflineStatus(uid)
+}
 
 export default userSlice.reducer

@@ -1,39 +1,43 @@
 import React, { useEffect, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { onSearchUsers, setDialogs, setOpenChatWithId, UserData } from 'store/slices/userSlice'
+import { useDispatch } from 'react-redux'
+import {
+    onSearchUsers,
+    setDialogs,
+    setOpenChat,
+    setUserData,
+    UserData,
+} from 'store/slices/userSlice'
 import { DialogsList } from './DialogsList'
 import { Search } from './Search'
 import { SearchResultList } from './SearchResultList'
 import { Settings } from './Settings'
 import { SideBarHeader } from './SideBarHeader'
 import { useGetUserDialogs } from 'hooks/useGetUserDialogs'
-import { useSearchParams } from 'react-router-dom'
-import { Loader } from 'components/Loader'
-import styles from 'styles/SideBar.module.scss'
-import { User } from 'firebase/auth'
-import { RootStateType } from 'store'
+import { Stack } from '@mui/material'
+import { Loader } from '../../common/Loader'
+import { useGetUserInfo } from '../../hooks/useGetUserInfo'
 
 type Props = {
-    user: User
-    chatIsOpen: boolean
+    uid: string
 }
 
-export const SideBar: React.FC<Props> = React.memo(function SideBar({ user, chatIsOpen }) {
+export const SideBar: React.FC<Props> = ({ uid }) => {
     const dispatch = useDispatch()
-
-    const activeDialogId = useSelector(
-        (state: RootStateType) => state.user.openChatWithId
-    ) as string
-
-    const { dialogsLoadingStatus, dialogs } = useGetUserDialogs(user.uid)
-
-    useEffect(() => {
-        dialogs && dispatch(setDialogs(dialogs))
-    }, [dialogs, dispatch])
 
     const [settingsVisible, setSettingsVisible] = useState(false)
     const [searchResultVisible, setSearchResultVisible] = useState(false)
     const dialogsListVisible = !settingsVisible && !searchResultVisible
+
+    const { status, dialogs } = useGetUserDialogs(uid)
+    const { user } = useGetUserInfo(uid)
+
+    useEffect(() => {
+        user && dispatch(setUserData(user))
+    }, [user])
+
+    useEffect(() => {
+        dispatch(setDialogs(dialogs))
+    }, [dispatch, dialogs])
 
     const changeSettingMode = () => {
         setSettingsVisible(!settingsVisible)
@@ -44,21 +48,29 @@ export const SideBar: React.FC<Props> = React.memo(function SideBar({ user, chat
         setSearchResultVisible(true)
     }
 
-    const setSearchParams = useSearchParams()[1]
-    const openChat = (uid: string) => {
-        setSearchParams({ uid })
-        dispatch(setOpenChatWithId(uid))
-    }
-
     const onSearchResultItemClick = (user: UserData) => {
-        openChat(user.uid)
+        dispatch(setOpenChat({ withUser: user, dialogId: `${uid}&${user.uid}` }))
         setSearchResultVisible(false)
     }
 
+    if (!user) {
+        return <Loader />
+    }
     return (
-        <div className={chatIsOpen ? `${styles.sideBar} ${styles.closeForMobile}` : styles.sideBar}>
+        <Stack
+            direction='column'
+            justifyContent='flex-start'
+            alignItems='stretch'
+            spacing={4}
+            sx={{
+                bgcolor: 'background.paper',
+                my: 2,
+                p: 3,
+                height: 'calc(100vh - 16px)',
+                borderRadius: 4,
+            }}>
             <SideBarHeader
-                userName={user.displayName}
+                displayName={user.displayName ? user.displayName : 'U'}
                 settingMode={settingsVisible}
                 changeSettingMode={changeSettingMode}
             />
@@ -70,16 +82,15 @@ export const SideBar: React.FC<Props> = React.memo(function SideBar({ user, chat
                 />
             )}
             {settingsVisible && <Settings changeSettingMode={changeSettingMode} />}
-            {dialogsListVisible &&
-                (dialogsLoadingStatus === 'success' ? (
-                    <DialogsList
-                        activeDialogId={activeDialogId}
-                        dialogs={dialogs}
-                        onItemClick={openChat}
-                    />
-                ) : (
-                    <Loader />
-                ))}
-        </div>
+            {dialogsListVisible && (
+                <DialogsList
+                    status={status}
+                    dialogs={dialogs}
+                    onItemClick={(user: UserData, dialogId: string) => {
+                        dispatch(setOpenChat({ withUser: user, dialogId: dialogId }))
+                    }}
+                />
+            )}
+        </Stack>
     )
-})
+}

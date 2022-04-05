@@ -1,10 +1,12 @@
-import { Loader } from 'components/Loader'
-import { useSelector } from 'react-redux'
+import { Loader } from 'common/Loader'
+import { useDispatch, useSelector } from 'react-redux'
 import { RootStateType } from 'store'
-import { UserData } from 'store/slices/userSlice'
+import { setSearchedUsers, UserData } from 'store/slices/userSlice'
 import { User } from './User'
 import { motion } from 'framer-motion'
-import { CloseOutlined } from '@ant-design/icons'
+import { Close } from '@mui/icons-material'
+import { IconButton, Stack, Typography } from '@mui/material'
+import { useEffect } from 'react'
 
 const variants = {
     visible: (i: number) => ({
@@ -24,36 +26,33 @@ type Props = {
 }
 
 export const SearchResultList: React.FC<Props> = ({ onItemClick, onCloseClick }) => {
-    const searchedUsers = useSelector((state: RootStateType) => state.user.searchedUSers)
+    const searchedUsers = useSelector((state: RootStateType) => state.user.searchedUsers)
     const loadingStatus = useSelector((state: RootStateType) => state.user.dataStatus)
+    const dispatch = useDispatch()
+
+    useEffect(() => {
+        return () => {
+            dispatch(setSearchedUsers([]))
+        }
+    }, [dispatch])
 
     return (
-        <div>
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    paddingRight: 10,
-                }}
-            >
-                <h3>Users:</h3>
-                <button
-                    style={{ background: 'none', color: '#fff', padding: '0 0 0 30px' }}
-                    onClick={onCloseClick}
-                >
-                    <motion.div
-                        initial={{ rotate: 0 }}
-                        animate={{ rotate: 180 }}
-                        whileHover={{ scale: 1.2, color: '#C9C9C9' }}
-                        transition={{ duration: 0.3 }}
-                    >
-                        <CloseOutlined />
-                    </motion.div>
-                </button>
-            </div>
-            <div>
-                {loadingStatus === 'pending' ? (
+        <Stack>
+            <Stack direction='row' justifyContent='space-between' alignItems='center'>
+                <Typography variant='body1' color='text.primary'>
+                    Users:
+                </Typography>
+                <motion.div
+                    initial={{ rotate: 0 }}
+                    animate={{ rotate: 180 }}
+                    transition={{ duration: 0.3 }}>
+                    <IconButton onClick={onCloseClick}>
+                        <Close />
+                    </IconButton>
+                </motion.div>
+            </Stack>
+            <Stack>
+                {loadingStatus === 'loading' ? (
                     <Loader />
                 ) : (
                     searchedUsers.map((user, i) => (
@@ -62,13 +61,12 @@ export const SearchResultList: React.FC<Props> = ({ onItemClick, onCloseClick })
                             initial='hidden'
                             animate='visible'
                             variants={variants}
-                            custom={i}
-                        >
+                            custom={i}>
                             <User onCLick={onItemClick} key={user.uid} user={user} />
                         </motion.div>
                     ))
                 )}
-            </div>
-        </div>
+            </Stack>
+        </Stack>
     )
 }

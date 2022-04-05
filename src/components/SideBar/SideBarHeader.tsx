@@ -1,30 +1,56 @@
 import { useDispatch } from 'react-redux'
 import { useAuth } from 'reactfire'
-import { removeUser } from 'store/slices/userSlice'
-import styles from 'styles/SideBar.module.scss'
+import { removeUser, setOpenChat } from 'store/slices/userSlice'
+import { Button, Grid, Typography } from '@mui/material'
 
 type SideBarHeaderProps = {
-    userName: string | null
+    displayName: string
     settingMode: boolean
     changeSettingMode: () => void
 }
 
 export const SideBarHeader: React.FC<SideBarHeaderProps> = ({
-    userName,
     settingMode,
     changeSettingMode,
+    displayName,
 }) => {
     const auth = useAuth()
     const dispatch = useDispatch()
-    const signOut = (auth: any) => auth.signOut().then(() => dispatch(removeUser()))
+
+    const signOut = async () => {
+        await auth.signOut()
+        dispatch(setOpenChat(null))
+        dispatch(removeUser())
+    }
 
     return (
-        <div className={styles.sideBarHeader}>
-            <p>Hello {userName}</p>
-            <button onClick={() => signOut(auth)}>Logout</button>
-            <button disabled onClick={changeSettingMode}>
-                {settingMode ? 'X' : 'Setting'}
-            </button>
-        </div>
+        <Grid container spacing={2} alignItems='center'>
+            <Grid item xs={6}>
+                <Typography color='text.primary' noWrap>
+                    Hello {displayName}
+                </Typography>
+            </Grid>
+            <Grid item xs={3}>
+                <Button
+                    disableElevation
+                    fullWidth
+                    size='small'
+                    variant='contained'
+                    onClick={signOut}>
+                    Logout
+                </Button>
+            </Grid>
+            <Grid item xs={3}>
+                <Button
+                    disableElevation
+                    fullWidth
+                    size='small'
+                    variant='contained'
+                    disabled
+                    onClick={changeSettingMode}>
+                    {settingMode ? 'X' : 'Setting'}
+                </Button>
+            </Grid>
+        </Grid>
     )
 }

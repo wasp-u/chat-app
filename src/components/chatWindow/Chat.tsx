@@ -1,100 +1,110 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootStateType } from 'store'
 import {
     editMessage,
-    removeDialog,
-    sendMessageToUser,
-    startMessagesListening,
-    stopMessagesListening,
+    messageViewedToggle,
+    OpenChat,
+    removeMessage,
+    sendMessage,
+    setMessages,
+    setOpenChat,
+    UserData,
 } from 'store/slices/userSlice'
 import { ChatBody } from './ChatBody'
 import { ChatHeader } from './ChatHeader'
 import { ChatSendForm } from './ChatSendForm'
-import { Loader } from '../Loader'
-import { motion } from 'framer-motion'
-import { useGetUser } from 'hooks/useGetUser'
-import styles from 'styles/Chat.module.scss'
 import { useSearchParams } from 'react-router-dom'
+import { Stack } from '@mui/material'
+import { useGetMessages } from '../../hooks/useGetMessages'
 
-type Props = {}
+type Props = {
+    openChat: OpenChat
+}
 
-export const Chat: React.FC<Props> = () => {
-    const userData = useSelector((state: RootStateType) => state.user.userData)
-    const withUID = useSelector((state: RootStateType) => state.user.openChatWithId) as string
-
-    const openDialogWith = useGetUser(withUID)
-
+export const Chat: React.FC<Props> = ({ openChat }) => {
+    const userData = useSelector((state: RootStateType) => state.user.userData) as UserData
     const [initialFormValue, setInitialFormValue] = useState('')
     const [editMessageMode, setEditMessageMode] = useState(false)
-    const [editMessageId, setEditMessageId] = useState(0)
+    const [editMessageId, setEditMessageId] = useState('')
 
     const dispatch = useDispatch()
+    const { status, messages } = useGetMessages(openChat.dialogId)
 
     useEffect(() => {
-        // @ts-ignore
-        dispatch(startMessagesListening(userData.uid, withUID))
+        messages && dispatch(setMessages(messages))
         return () => {
-            // @ts-ignore
-            dispatch(stopMessagesListening(userData.uid, withUID))
+            dispatch(setMessages([]))
         }
-    }, [dispatch, withUID, userData.uid])
+    }, [messages])
+
+    // useEffect(() => {
+    //     openChat.dialogId && dispatch(startMessagesListening(openChat.dialogId))
+    //     return () => {
+    //         openChat.dialogId && dispatch(stopMessagesListening(openChat.dialogId))
+    //         dispatch(setMessages([]))
+    //     }
+    // }, [dispatch, openChat.dialogId])
+
     const setSearchParams = useSearchParams()[1]
-    const deleteDialogHandle = () => {
+    const deleteDialogHandler = () => {
         setSearchParams({})
-        dispatch(removeDialog(userData.uid, withUID))
+        dispatch(setOpenChat(null))
+        // openChat.dialogId && dispatch(removeDialog(openChat.dialogId))
+    }
+
+    const deleteMessageHandler = (messageId: string) => {
+        dispatch(removeMessage(openChat.dialogId, messageId))
+    }
+    const messageViewedToggleHandler = (messageId: string) => {
+        dispatch(messageViewedToggle(openChat.dialogId, messageId))
     }
 
     const onSendClick = (messageText: string) => {
-        if (!!userData.uid && !!userData.displayName) {
-            if (editMessageMode) {
-                dispatch(editMessage(userData.uid, withUID, editMessageId, messageText))
-                setEditMessageMode(false)
-                setInitialFormValue('')
-                setEditMessageId(0)
-            } else {
-                dispatch(
-                    sendMessageToUser(
-                        {
-                            fromId: userData.uid,
-                            fromName: userData.displayName,
-                            text: messageText,
-                            photoURL: userData.photoURL,
-                        },
-                        {
-                            id: withUID,
-                            displayName: openDialogWith.displayName,
-                            photoURL: openDialogWith.photoURL,
-                        }
-                    )
-                )
-            }
+        if (editMessageMode) {
+            openChat.dialogId &&
+                dispatch(editMessage(openChat.dialogId, editMessageId, messageText))
+            deactivateEditMode()
+        } else {
+            openChat.withUser && dispatch(sendMessage(messageText, userData, openChat.withUser))
         }
     }
 
-    const onEditHandle = (messagePreviousText: string, messageId: number) => {
+    const deactivateEditMode = () => {
+        setEditMessageId('')
+        setEditMessageMode(false)
+        setInitialFormValue('')
+    }
+
+    const activateEditMode = (messagePreviousText: string, messageId: string) => {
         setInitialFormValue(messagePreviousText)
         setEditMessageMode(true)
         setEditMessageId(messageId)
     }
-    const variants = {
-        visible: { opacity: 1 },
-        hidden: { opacity: 0 },
-    }
-    return withUID ? (
-        <motion.div
-            initial='hidden'
-            animate='visible'
-            layout
-            variants={variants}
-            transition={{ duration: 0.1, delay: 0.1 }}
-            className={styles.chat}
-        >
-            <ChatHeader deleteDialogHandle={deleteDialogHandle} />
-            <ChatBody onEditHandle={onEditHandle} />
-            <ChatSendForm onSubmit={onSendClick} initialValue={initialFormValue} />
-        </motion.div>
-    ) : (
-        <Loader />
+    return (
+        <Stack
+            direction='column'
+            justifyContent='space-between'
+            alignItems='stretch'
+            sx={{
+                color: 'text.primary',
+                bgcolor: 'background.paper',
+                my: 2,
+                height: 'calc(100vh - 16px)',
+                borderRadius: 2,
+            }}>
+            <ChatHeader deleteDialogHandle={deleteDialogHandler} withUser={openChat.withUser} />
+            <ChatBody
+                deleteMessageHandler={deleteMessageHandler}
+                editMessageId={editMessageId}
+                editMessageHandler={activateEditMode}
+                messageViewedToggleHandler={messageViewedToggleHandler}
+            />
+            <ChatSendForm
+                onSubmit={onSendClick}
+                initialValue={initialFormValue}
+                deactivateEditMode={deactivateEditMode}
+            />
+        </Stack>
     )
 }

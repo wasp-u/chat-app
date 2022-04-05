@@ -1,17 +1,21 @@
-import { SignUp } from 'components/SignUp'
-import { useAuth } from 'hooks/useAuth'
-import { Navigate } from 'react-router-dom'
-import styles from 'styles/RegisterPage.module.scss'
+import {SignUp} from 'components/SignUpScreen/SignUp'
+import {Navigate} from 'react-router-dom'
+import {useSigninCheck} from 'reactfire'
+import {Box} from "@mui/material";
 
 function RegisterPage() {
-    const authUser = useAuth()
+    const {status, data: signInResult} = useSigninCheck()
 
-    return authUser.isAuth ? (
-        <Navigate to={`/`} />
+    return status === 'success' && signInResult.signedIn ? (
+        <Navigate to={`/`}/>
     ) : (
-        <div className={styles.registerPage}>
-            <SignUp />
-        </div>
+        <Box sx={{
+            height: '100vh',
+            width: '100vw',
+            bgcolor: 'background.default'
+        }}>
+            <SignUp/>
+        </Box>
     )
 }
 

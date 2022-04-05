@@ -1,24 +1,22 @@
-import { off, onValue } from 'firebase/database'
-import { ref } from 'firebase/database'
-import { getDatabase } from 'firebase/database'
 import './../../firebase'
+import { collection, getFirestore, onSnapshot, query } from 'firebase/firestore'
 
-const db = getDatabase()
+const db = getFirestore()
 
-const subscribeToMessagesChange = (callback: any, uid: string, chatId: string) => {
-    const messagesListRef = ref(db, `users/${uid}/dialogs/${chatId}/messages`)
-    onValue(messagesListRef, snapshot => {
-        const data = snapshot.val()
-        callback(data)
+const subscribeToMessagesChange = (callback: any, dialogId: string) => {
+    const q = query(collection(db, `dialogs/${dialogId}/messages`))
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+        const messages = [] as any[]
+        querySnapshot.forEach(doc => {
+            messages.push(doc.data())
+        })
+        callback(messages)
     })
+    return unsubscribe
 }
 
 export const chatAPI = {
-    subscribe(callback: any, uid: string, chatId: string) {
-        subscribeToMessagesChange(callback, uid, chatId)
-    },
-    unsubscribe(uid: string, chatId: string) {
-        const messagesListRef = ref(db, `users/${uid}/dialogs/${chatId}/messages`)
-        off(messagesListRef)
+    subscribe(callback: any, dialogId: string) {
+        return subscribeToMessagesChange(callback, dialogId)
     },
 }

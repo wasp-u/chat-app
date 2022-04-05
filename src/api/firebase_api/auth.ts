@@ -1,18 +1,13 @@
 import { getApp } from 'firebase/app'
 import {
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    GoogleAuthProvider,
-    signInWithPopup,
-    updateProfile,
-    User,
-    setPersistence,
-    browserSessionPersistence,
-    initializeAuth,
-    indexedDBLocalPersistence,
     browserLocalPersistence,
     browserPopupRedirectResolver,
-    onAuthStateChanged,
+    browserSessionPersistence,
+    GoogleAuthProvider,
+    indexedDBLocalPersistence,
+    initializeAuth,
+    signInWithEmailAndPassword,
+    signInWithPopup,
 } from 'firebase/auth'
 import './../../firebase'
 
@@ -29,26 +24,19 @@ const emptyUser = {
     uid: '',
 }
 
-const subscribeAuthUser = (callback: any) => {
-    onAuthStateChanged(auth, function (user) {
-        if (user) {
-            const userData = {
-                displayName: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL,
-                uid: user.uid,
-            }
-            callback(userData)
-        } else {
-        }
-    })
-}
 export const userAuth = {
-    updateUserData(name: string) {
-        const user = auth.currentUser as User
-        return updateProfile(user, {
-            displayName: name,
-        })
+    async authWithEmailAndPassword(email: string, password: string) {
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password)
+            return {
+                displayName: userCredential.user.displayName,
+                email: userCredential.user.email,
+                photoURL: userCredential.user.photoURL,
+                uid: userCredential.user.uid,
+            }
+        } catch (e: any) {
+            return e
+        }
     },
     getAuthUser() {
         const user = auth.currentUser
@@ -61,60 +49,19 @@ export const userAuth = {
             }
         } else return emptyUser
     },
-    subscribe(callback: any) {
-        subscribeAuthUser(callback)
+    async authMeWithGoogle() {
+        const result = await signInWithPopup(auth, provider)
+        const user = result.user
+        return {
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            uid: user.uid,
+        }
     },
-    authMeWithGoogle() {
-        return setPersistence(auth, browserSessionPersistence)
-            .then(() => {
-                return signInWithPopup(auth, provider).then(result => {
-                    // const credential = GoogleAuthProvider.credentialFromResult(result);
-                    const user = result.user
-                    return {
-                        displayName: user.displayName,
-                        email: user.email,
-                        photoURL: user.photoURL,
-                        uid: user.uid,
-                    }
-                })
-            })
-            .catch(error => {
-                const errorCode = error.code
-                const errorMessage = error.message
-                console.log(errorCode)
-                console.log(errorMessage)
-                return emptyUser
-            })
-    },
-    authMe(email: string, password: string) {
-        return signInWithEmailAndPassword(auth, email, password)
-            .then(userCredential => {
-                const user = userCredential.user
-                return {
-                    displayName: user.displayName,
-                    email: user.email,
-                    photoURL: user.photoURL,
-                    uid: user.uid,
-                }
-            })
-            .catch(error => {
-                throw new Error(error)
-            })
-    },
-    registerMe(email: string, password: string) {
-        return createUserWithEmailAndPassword(auth, email, password)
-            .then(userCredential => {
-                const user = userCredential.user
-                return {
-                    displayName: user.displayName,
-                    email: user.email,
-                    photoURL: user.photoURL,
-                    uid: user.uid,
-                }
-            })
-            .catch(error => error.message)
-    },
-    signOut() {
-        auth.signOut()
+    async registerMe(email: string, password: string, displayName: string) {
+        let url = `https://us-central1-chat-c6cf2.cloudfunctions.net/registerNewUser?displayName=${displayName}&email=${email}&password=${password}`
+        await fetch(url)
+        await this.authWithEmailAndPassword(email, password)
     },
 }

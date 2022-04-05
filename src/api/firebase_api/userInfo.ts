@@ -1,48 +1,89 @@
 import { UserData } from './../../store/slices/userSlice'
-import { getDatabase, ref, set, get, child } from 'firebase/database'
 import './../../firebase'
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    getFirestore,
+    Timestamp,
+    updateDoc,
+} from 'firebase/firestore'
+import { getAuth, updateProfile } from 'firebase/auth'
+import { getDatabase, onDisconnect, onValue, ref, set } from 'firebase/database'
 
-const db = getDatabase()
-const dbRef = ref(getDatabase())
+const db = getFirestore()
+const dbRef = getDatabase()
+const auth = getAuth()
 
 export const userInfo = {
-    setNewUserData(user: UserData) {
-        get(child(dbRef, `users/${user.uid}`))
-            .then(snapshot => {
-                if (!snapshot.exists()) {
-                    set(ref(db, 'users/' + user.uid), {
-                        displayName: user.displayName,
-                        email: user.email,
-                        photoURL: user.photoURL,
-                        uid: user.uid,
-                    })
-                }
+    async updateUserData(name: string) {
+        const db = getFirestore()
+        const user = auth.currentUser
+        if (user) {
+            await updateProfile(user, {
+                displayName: name,
             })
-            .catch(error => {
-                console.error(error)
-            })
+            await updateDoc(doc(db, 'users', user.uid), { displayName: name })
+        }
     },
-    searchUser(searchValue: string) {
-        let users = [] as UserData[]
-        return get(child(dbRef, `users/`))
-            .then(snapshot => {
-                if (snapshot.exists()) {
-                    for (let key in snapshot.val()) {
-                        const name = snapshot.val()[key].displayName
-                        if (
-                            name.toLocaleLowerCase().indexOf(searchValue.toLocaleLowerCase()) !== -1
-                        ) {
-                            users.push(snapshot.val()[key])
-                        }
-                    }
-                } else {
-                    console.log('No data available')
-                }
-                return users
-            })
-            .catch(error => {
-                console.error(error)
-                return []
-            })
+    async getUser(uid: string) {
+        const user = await getDoc(doc(db, 'users', uid))
+        console.log(user.data())
+        return user.data() as UserData
+    },
+    async searchUser(searchValue: string) {
+        let users = [] as any[]
+
+        const docSnap = await getDocs(collection(db, 'users'))
+        docSnap.forEach(doc => {
+            const user = doc.data()
+            const name = user.displayName
+            if (name.toLocaleLowerCase().indexOf(searchValue.toLocaleLowerCase()) !== -1) {
+                users.push(user)
+            }
+        })
+
+        return users as UserData[]
+    },
+    onlineStatusToggle(uid: string) {
+        const userStatusDatabaseRef = ref(dbRef, 'status/' + uid)
+        const isOfflineForFirestore = {
+            state: 'offline',
+            last_changed: Timestamp.now().seconds * 1000,
+        }
+
+        const isOnlineForFirestore = {
+            state: 'online',
+            last_changed: Timestamp.now().seconds * 1000,
+        }
+
+        onValue(ref(dbRef, '.info/connected'), snapshot => {
+            if (snapshot.val() == false) {
+                updateDoc(doc(db, 'users', uid), {
+                    status: isOfflineForFirestore,
+                })
+                return
+            }
+            onDisconnect(userStatusDatabaseRef)
+                .set(isOfflineForFirestore)
+                .then(() => {
+                    updateDoc(doc(db, 'users', uid), {
+                        status: isOnlineForFirestore,
+                    })
+                    set(userStatusDatabaseRef, isOnlineForFirestore)
+                })
+        })
+    },
+    setOfflineStatus(uid: string) {
+        const userStatusDatabaseRef = ref(dbRef, 'status/' + uid)
+        const isOfflineForFirestore = {
+            state: 'offline',
+            last_changed: Timestamp.now().seconds * 1000,
+        }
+        updateDoc(doc(db, 'users', uid), {
+            status: isOfflineForFirestore,
+        })
+        set(userStatusDatabaseRef, isOfflineForFirestore)
     },
 }

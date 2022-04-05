@@ -1,125 +1,115 @@
-import { child, remove, update } from 'firebase/database'
-import { get } from 'firebase/database'
-import { Timestamp } from 'firebase/firestore'
-import { limitToLast, onValue, query, set } from 'firebase/database'
-import { ref } from 'firebase/database'
-import { getDatabase } from 'firebase/database'
+import {
+    collection,
+    deleteDoc,
+    doc,
+    getDocs,
+    getFirestore,
+    increment,
+    onSnapshot,
+    query,
+    setDoc,
+    Timestamp,
+    updateDoc,
+    where,
+} from 'firebase/firestore'
+import { Dialog, MessageType, UserData } from 'store/slices/userSlice'
 import './../../firebase'
+import { getAuth } from 'firebase/auth'
 
-const db = getDatabase()
-const dbRef = ref(getDatabase())
-
-const subscribeToMessagesChange = (callback: any, uid: string) => {
-    const dialogsListRef = query(ref(db, `users/${uid}/dialogs/`), limitToLast(30))
-    onValue(dialogsListRef, snapshot => {
-        const data = snapshot.val()
-        callback(data)
-    })
-}
+const db = getFirestore()
+const auth = getAuth()
 
 export const dialogsAPI = {
-    sendMessageToUser(
-        message: {
-            fromId: string
-            fromName: string
-            text: string
-            photoURL?: string | null
-        },
-        to: { id: string; displayName: string | null; photoURL?: string | null }
-    ) {
-        if (!message.photoURL) {
-            message.photoURL = ''
+    async _setMessage(text: string, dialogId: string, message: MessageType) {
+        const dialogRef = doc(db, 'dialogs', dialogId, 'messages', message.id)
+        await setDoc(dialogRef, message)
+        // const dialogRef = doc(db, 'dialogs', dialogId)
+        // await updateDoc(dialogRef, {
+        //     messages: arrayUnion(message),
+        // })
+    },
+    async sendMessage(text: string, fromUser: UserData, toUser: UserData) {
+        // let url = `https://us-central1-chat-c6cf2.cloudfunctions.net/sendMessage?text=${text}&fromUserId=${fromUserId}&toUserId=${toUserId}`
+        // await fetch(url)
+        const message = {
+            id: Timestamp.now().seconds * 1000 + new Date().getTime().toString(),
+            text: text,
+            time: Timestamp.now().seconds * 1000,
+            fromId: fromUser.uid,
+            viewed: false,
+            edited: false,
         }
-        if (!to.photoURL) {
-            to.photoURL = ''
+        const q = query(
+            collection(db, 'dialogs'),
+            where('usersIdInDialog', 'in', [
+                [fromUser.uid, toUser.uid],
+                [toUser.uid, fromUser.uid],
+            ])
+        )
+        const dialog = await getDocs(q)
+        let currentDialogId = ''
+        if (dialog.empty) {
+            currentDialogId = `${fromUser.uid}&${toUser.uid}`
+            await setDoc(doc(db, 'dialogs', currentDialogId), {
+                usersInDialog: [fromUser, toUser],
+                usersIdInDialog: [fromUser.uid, toUser.uid],
+                id: currentDialogId,
+            })
+            await this._setMessage(text, currentDialogId, message)
+        } else {
+            dialog.forEach(d => (currentDialogId = d.data().id))
+            await this._setMessage(text, currentDialogId, message)
         }
-        const messageID = Timestamp.now().seconds * 1000 + new Date().getTime()
-        get(child(dbRef, `users/${to.id}/dialogs/${message.fromId}`)).then(snapshot => {
-            if (!snapshot.exists()) {
-                set(ref(db, `users/${to.id}/dialogs/${message.fromId}`), {
-                    uid: message.fromId,
-                    displayName: message.fromName,
-                    photoURL: message.photoURL,
-                }).then(() => {
-                    set(ref(db, `users/${to.id}/dialogs/${message.fromId}/messages/${messageID}`), {
-                        id: messageID,
-                        time: Timestamp.now().seconds * 1000,
-                        fromId: message.fromId,
-                        text: message.text,
-                        fromName: message.fromName,
-                        photoURL: message.photoURL,
-                    })
-                })
-            } else {
-                set(ref(db, `users/${to.id}/dialogs/${message.fromId}/messages/${messageID}`), {
-                    id: messageID,
-                    time: Timestamp.now().seconds * 1000,
-                    fromId: message.fromId,
-                    text: message.text,
-                    fromName: message.fromName,
-                    photoURL: message.photoURL,
-                })
-            }
+        await updateDoc(doc(db, 'dialogs', currentDialogId), {
+            lastMessageId: message.id,
         })
-        get(child(dbRef, `users/${message.fromId}/dialogs/${to.id}`)).then(snapshot => {
-            if (!snapshot.exists()) {
-                set(ref(db, `users/${message.fromId}/dialogs/${to.id}`), {
-                    uid: to.id,
-                    displayName: to.displayName,
-                    photoURL: to.photoURL,
-                }).then(() => {
-                    set(ref(db, `users/${message.fromId}/dialogs/${to.id}/messages/${messageID}`), {
-                        id: messageID,
-                        time: Timestamp.now().seconds * 1000,
-                        fromId: message.fromId,
-                        text: message.text,
-                        fromName: message.fromName,
-                        photoURL: message.photoURL,
-                    })
-                })
-            } else {
-                set(ref(db, `users/${message.fromId}/dialogs/${to.id}/messages/${messageID}`), {
-                    id: messageID,
-                    time: Timestamp.now().seconds * 1000,
-                    fromId: message.fromId,
-                    text: message.text,
-                    fromName: message.fromName,
-                    photoURL: message.photoURL,
-                })
-            }
+        await updateDoc(doc(db, 'dialogs', currentDialogId), {
+            [`newMessagesCount.${toUser.uid}`]: increment(1),
         })
     },
     subscribe(callback: any, uid: string) {
-        subscribeToMessagesChange(callback, uid)
+        const q = query(collection(db, 'dialogs'), where('usersIdInDialog', 'array-contains', uid))
+        const unsub = onSnapshot(q, docs => {
+            const data = [] as Dialog[]
+            docs.forEach(doc => {
+                data.push(doc.data() as Dialog)
+            })
+            callback(data)
+        })
+        return unsub
     },
-    deleteMessageForUser(myId: string, toUserId: string, messageID: number) {
-        remove(ref(db, `users/${toUserId}/dialogs/${myId}/messages/${messageID}`))
+    async deleteMessage(dialogId: string, messageId: string) {
+        await deleteDoc(doc(db, `dialogs/${dialogId}/messages`, messageId))
     },
-    deleteMessageForMe(myId: string, toUserId: string, messageID: number) {
-        remove(ref(db, `users/${myId}/dialogs/${toUserId}/messages/${messageID}`))
+    //TODO: fix deleteDialog function
+
+    // deleteDialog(dialogId: string) {
+    //     const deleteFn = httpsCallable(functions, 'deleteDialog')
+    //     deleteFn({ dialogId: dialogId })
+    //         .then(function (result) {
+    //             console.log('Delete success: ' + JSON.stringify(result))
+    //         })
+    //         .catch(function (err) {
+    //             console.log('Delete failed, see console,')
+    //             console.warn(err)
+    //         })
+    // },
+    async editMessage(dialogId: string, messageId: string, newMessageText: string) {
+        const messageDocRef = doc(db, `dialogs/${dialogId}/messages/`, messageId)
+        await updateDoc(messageDocRef, {
+            text: newMessageText,
+            edited: true,
+        })
     },
-    deleteDialog(myId: string, toUserId: string) {
-        remove(ref(db, `users/${myId}/dialogs/${toUserId}`))
-        remove(ref(db, `users/${toUserId}/dialogs/${myId}`))
-    },
-    editMessage(myId: string, toUserId: string, messageID: number, newMessageText: string) {
-        const updates: { [index: string]: string } = {}
-        updates[`users/${myId}/dialogs/${toUserId}/messages/${messageID}/text`] = newMessageText
-        updates[`users/${toUserId}/dialogs/${myId}/messages/${messageID}/text`] = newMessageText
-        update(ref(db), updates)
-        set(ref(db, `users/${myId}/dialogs/${toUserId}/messages/${messageID}/edited`), true)
-        set(ref(db, `users/${toUserId}/dialogs/${myId}/messages/${messageID}/edited`), true)
-    },
-    messageViewedToggle(myId: string, withUserId: string, messageId: number) {
-        get(child(dbRef, `users/${withUserId}/dialogs/${myId}/messages/${messageId}`)).then(
-            snapshot => {
-                if (snapshot.exists()) {
-                    set(
-                        ref(db, `users/${withUserId}/dialogs/${myId}/messages/${messageId}/viewed`),
-                        true
-                    )
-                }
-            }
-        )
+
+    async messageViewedToggle(dialogId: string, messageId: string) {
+        const currentUserId = auth.currentUser?.uid
+        const messageDocRef = doc(db, `dialogs/${dialogId}/messages/`, messageId)
+        await updateDoc(messageDocRef, {
+            viewed: true,
+        })
+        await updateDoc(doc(db, 'dialogs', dialogId), {
+            [`newMessagesCount.${currentUserId}`]: 0,
+        })
     },
 }

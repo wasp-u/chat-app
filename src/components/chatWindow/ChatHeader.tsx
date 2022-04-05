@@ -1,59 +1,60 @@
-import { Dropdown, Menu } from 'antd'
-import Avatar from 'antd/lib/avatar/avatar'
-import { DeleteFilled, EllipsisOutlined } from '@ant-design/icons'
-import styles from 'styles/Chat.module.scss'
-import { Loader } from 'components/Loader'
-import { useSelector } from 'react-redux'
-import { RootStateType } from 'store'
-import { useGetUser } from 'hooks/useGetUser'
+import { Avatar, Grid, IconButton, Tooltip, Typography, Zoom } from '@mui/material'
+import { Delete } from '@mui/icons-material'
+import { UserData } from '../../store/slices/userSlice'
 
 type Props = {
+    withUser: UserData
     deleteDialogHandle: () => void
 }
 
-export const ChatHeader: React.FC<Props> = ({ deleteDialogHandle }) => {
-    const withUserId = useSelector((state: RootStateType) => state.user.openChatWithId) as string
-    const withUser = useGetUser(withUserId)
-
-    const menu = (
-        <Menu style={{ background: '#212121' }}>
-            <Menu.Item key='0' danger onClick={deleteDialogHandle}>
-                <div style={{ display: 'flex' }}>
-                    <DeleteFilled style={{ fontSize: '20px', color: '#aa1d1d' }} />
-                    <p style={{ marginLeft: '5px' }}>Delete dialog</p>
-                </div>
-            </Menu.Item>
-        </Menu>
+export const ChatHeader: React.FC<Props> = ({ deleteDialogHandle, withUser }) => {
+    const lastVisit = new Date(withUser.status.last_changed)
+    return (
+        <Grid
+            container
+            alignItems={'center'}
+            borderRadius={'8px 8px 0 0'}
+            py={2}
+            bgcolor={'action.selected'}>
+            <Grid item mr={2}>
+                {withUser.photoURL ? (
+                    <Avatar
+                        sx={{ width: 56, height: 56, justifyContent: 'center', ml: 4 }}
+                        alt='user'
+                        src={withUser.photoURL}
+                    />
+                ) : (
+                    <Avatar
+                        sx={{
+                            width: 56,
+                            height: 56,
+                            justifyContent: 'center',
+                            ml: 4,
+                        }}>
+                        {withUser.displayName ? withUser.displayName[0] : 'U'}
+                    </Avatar>
+                )}
+            </Grid>
+            <Grid item xs>
+                <Typography variant='body1'>{withUser.displayName}</Typography>
+                {withUser.status.state === 'online' ? (
+                    <Typography variant='caption' color={'success.main'}>
+                        online
+                    </Typography>
+                ) : (
+                    <Typography variant='caption'>
+                        last visit:{' '}
+                        {lastVisit.toDateString() + ' ' + lastVisit.toLocaleTimeString()}
+                    </Typography>
+                )}
+            </Grid>
+            <Grid item>
+                <IconButton onClick={deleteDialogHandle}>
+                    <Tooltip title='Delete dialog' TransitionComponent={Zoom} arrow>
+                        <Delete color={'error'} />
+                    </Tooltip>
+                </IconButton>
+            </Grid>
+        </Grid>
     )
-    if (withUser) {
-        return (
-            <div className={styles.chatHeader}>
-                <div className={styles.userInfo}>
-                    <div className={styles.chatHeader_userPhoto}>
-                        {withUser.photoURL ? (
-                            <img
-                                style={{ width: 50, borderRadius: '50%' }}
-                                src={withUser.photoURL}
-                                alt='avatar'
-                            />
-                        ) : (
-                            <Avatar size={50}>
-                                {withUser.displayName ? withUser.displayName[0] : 'U'}
-                            </Avatar>
-                        )}
-                    </div>
-                    <div>
-                        <p>{withUser.displayName}</p>
-                    </div>
-                </div>
-                <Dropdown trigger={['click']} overlay={menu}>
-                    <div className={styles.deleteIcon}>
-                        <EllipsisOutlined style={{ fontSize: '30px' }} />
-                    </div>
-                </Dropdown>
-            </div>
-        )
-    } else {
-        return <Loader />
-    }
 }

@@ -1,4 +1,3 @@
-@import '~antd/dist/antd.css';
 /* Указываем box sizing */
 *,
 *::before,
@@ -35,8 +34,7 @@ body {
     min-height: 100vh;
     scroll-behavior: smooth;
     text-rendering: optimizeSpeed;
-    line-height: 1.5;
-    background: #000;
+    /*line-height: 1.5;*/
 }
 
 /* Удаляем стандартную стилизацию для всех ul и il, у которых есть атрибут class*/
@@ -73,5 +71,14 @@ select {
 
 * {
     font-family: 'Roboto';
-    transition: all cubic-bezier(0.06, 0.59, 0.36, 1) 0.2s !important;
+}
+
+@media (max-width: 768px) {
+    html {
+        height: 80vh !important;
+    }
+
+    body {
+        min-height: 80vh !important;
+    }
 }

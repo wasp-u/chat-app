@@ -1,9 +1,15 @@
 .registerPage {
     height: 100vh;
     width: 100vw;
-    background: #0f0f0f;
+    background: white;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    .registerPage {
+        height: 80vh;
+    }
 }

@@ -40,9 +40,7 @@ export const SearchResultList: React.FC<Props> = ({ loadingStatus, onItemClick, 
     return (
         <Stack>
             <Stack direction='row' justifyContent='space-between' alignItems='center'>
-                <Typography variant='body1' color='text.primary'>
-                    Users:
-                </Typography>
+                <Typography color='text.primary'>Users:</Typography>
                 <motion.div
                     initial={{ rotate: 0 }}
                     animate={{ rotate: 180 }}

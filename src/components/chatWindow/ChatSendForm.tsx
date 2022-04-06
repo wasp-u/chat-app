@@ -1,12 +1,18 @@
-import { KeyboardEvent, useEffect, useRef, useState } from 'react'
-import { Box, IconButton, InputAdornment, TextField } from '@mui/material'
+import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
+import { Box, InputAdornment, styled, TextField } from '@mui/material'
 import { SendRounded } from '@mui/icons-material'
+import { uploadFile } from '../../store/slices/userSlice'
+import { useDispatch } from 'react-redux'
 
 type ChatSendFormProps = {
     initialValue: string
     deactivateEditMode: () => void
     onSubmit: (newMessage: string) => void
 }
+
+const Input = styled('input')({
+    display: 'none',
+})
 
 export const ChatSendForm: React.FC<ChatSendFormProps> = ({
     onSubmit,
@@ -31,6 +37,13 @@ export const ChatSendForm: React.FC<ChatSendFormProps> = ({
         setValue('')
     }
 
+    const dispatch = useDispatch()
+    const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+        // @ts-ignore
+        dispatch(uploadFile(e.target.files[0]))
+        // setSelectedFile(e.target.files[0])
+    }
+
     useEffect(() => {
         if (value === '\n') {
             setValue('')
@@ -41,7 +54,7 @@ export const ChatSendForm: React.FC<ChatSendFormProps> = ({
     }, [initialValue])
 
     return (
-        <Box px={4} py={2}>
+        <Box p={2}>
             <TextField
                 inputRef={textAreaRef}
                 autoComplete='off'
@@ -62,9 +75,35 @@ export const ChatSendForm: React.FC<ChatSendFormProps> = ({
                     onKeyDown: onEnterKeyClick,
                     endAdornment: (
                         <InputAdornment position='end'>
-                            <IconButton onClick={onSubmitHandle}>
-                                <SendRounded fontSize={'large'} />
-                            </IconButton>
+                            {/*<label htmlFor='contained-button-file' style={{ height: '35px' }}>*/}
+                            {/*    <Input*/}
+                            {/*        accept='image/*'*/}
+                            {/*        id='contained-button-file'*/}
+                            {/*        type='file'*/}
+                            {/*        onChange={changeHandler}*/}
+                            {/*    />*/}
+                            {/*    <AttachFileIcon*/}
+                            {/*        fontSize={'large'}*/}
+                            {/*        sx={{*/}
+                            {/*            '&:hover': {*/}
+                            {/*                color: 'text.disabled',*/}
+                            {/*                cursor: 'pointer',*/}
+                            {/*            },*/}
+                            {/*        }}*/}
+                            {/*    />*/}
+                            {/*</label>*/}
+
+                            <SendRounded
+                                fontSize={'large'}
+                                onClick={onSubmitHandle}
+                                sx={{
+                                    mx: 2,
+                                    '&:hover': {
+                                        color: 'text.disabled',
+                                        cursor: 'pointer',
+                                    },
+                                }}
+                            />
                         </InputAdornment>
                     ),
                 }}

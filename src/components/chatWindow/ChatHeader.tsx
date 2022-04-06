@@ -14,22 +14,16 @@ export const ChatHeader: React.FC<Props> = ({ deleteDialogHandle, withUser }) =>
             container
             alignItems={'center'}
             borderRadius={'8px 8px 0 0'}
-            py={2}
+            p={2}
             bgcolor={'action.selected'}>
             <Grid item mr={2}>
                 {withUser.photoURL ? (
-                    <Avatar
-                        sx={{ width: 56, height: 56, justifyContent: 'center', ml: 4 }}
-                        alt='user'
-                        src={withUser.photoURL}
-                    />
+                    <Avatar sx={{ width: 56, height: 56 }} alt='user' src={withUser.photoURL} />
                 ) : (
                     <Avatar
                         sx={{
                             width: 56,
                             height: 56,
-                            justifyContent: 'center',
-                            ml: 4,
                         }}>
                         {withUser.displayName ? withUser.displayName[0] : 'U'}
                     </Avatar>

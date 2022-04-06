@@ -44,7 +44,7 @@ export const Message: React.FC<Props> = React.memo(
             <Box
                 sx={[
                     {
-                        maxWidth: '50%',
+                        maxWidth: 'min(40vw,500px)',
                         mt: 2,
                         borderRadius: 4,
                         p: 2,

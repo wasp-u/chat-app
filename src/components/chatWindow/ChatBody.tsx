@@ -44,7 +44,7 @@ export const ChatBody: React.FC<Props> = ({
                 onScroll={scrollHandler}
                 sx={{
                     mt: 'auto',
-                    px: 4,
+                    px: 2,
                     overflowY: 'scroll',
                     display: 'flex',
                     width: '100%',

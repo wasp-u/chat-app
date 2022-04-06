@@ -41,7 +41,7 @@ export const DialogsList: React.FC<DialogsListProps> = React.memo(function Dialo
     if (dialogs && dialogs.length !== 0) {
         return (
             <Stack overflow={'scroll'}>
-                <Typography variant='body1' color='text.primary'>
+                <Typography color='text.primary' my={2}>
                     Dialogs:
                 </Typography>
                 {dialogs.map((dialog, index) => (

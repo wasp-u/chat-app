@@ -18,7 +18,6 @@ const HomePage = () => {
 
     useEffect(() => {
         if (signInResult && signInResult.user) {
-            // dispatch(getAuthUser(signInResult.user.uid))
             dispatch(onlineStatusToggle(signInResult.user.uid))
         }
         return () => {

@@ -78,7 +78,9 @@ export const DialogItem: React.FC<Props> = React.memo(function DialogItem({
                 </Grid>
             </Badge>
             <Grid item xs zeroMinWidth>
-                <Typography color='text.primary'>{dialogWithUser.displayName}</Typography>
+                <Typography color='text.primary' noWrap>
+                    {dialogWithUser.displayName}
+                </Typography>
                 <Stack direction='row' spacing={1}>
                     {isMyMessage && (
                         <Typography color='text.disabled' variant={'body2'}>

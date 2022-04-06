@@ -18,7 +18,6 @@ const auth = getAuth()
 
 export const userInfo = {
     async updateUserData(name: string) {
-        const db = getFirestore()
         const user = auth.currentUser
         if (user) {
             await updateProfile(user, {

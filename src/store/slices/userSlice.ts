@@ -3,6 +3,7 @@ import { userInfo } from 'api/firebase_api/userInfo'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { userAuth } from 'api/firebase_api/auth'
 import { chatAPI } from '../../api/firebase_api/chat'
+import { filesAPI } from '../../api/firebase_api/files'
 
 const initialState = {
     userData: null as UserData | null,
@@ -11,6 +12,7 @@ const initialState = {
     messages: [] as MessageType[],
     searchedUsers: [] as UserData[],
     openChat: null as OpenChat | null,
+    uploadFileStatus: 0,
 }
 type ForUserAuth = {
     email: string
@@ -74,11 +76,21 @@ const userSlice = createSlice({
         setOpenChat(state, action: PayloadAction<OpenChat | null>) {
             state.openChat = action.payload
         },
+        setUploadFileStatus(state, action: PayloadAction<number>) {
+            state.uploadFileStatus = action.payload
+        },
     },
 })
 
-export const { setUserData, removeUser, setMessages, setSearchedUsers, setDialogs, setOpenChat } =
-    userSlice.actions
+export const {
+    setUserData,
+    removeUser,
+    setMessages,
+    setSearchedUsers,
+    setDialogs,
+    setOpenChat,
+    setUploadFileStatus,
+} = userSlice.actions
 
 let _newMessageHandler: ((data: any) => void) | null = null
 const newMessageHandlerCreator = (dispatch: any) => {
@@ -88,6 +100,16 @@ const newMessageHandlerCreator = (dispatch: any) => {
         }
     }
     return _newMessageHandler
+}
+
+let _uploadFileStatusHandler: ((data: any) => void) | null = null
+const uploadFileStatusHandler = (dispatch: any) => {
+    if (_uploadFileStatusHandler === null) {
+        _uploadFileStatusHandler = data => {
+            dispatch(setUploadFileStatus(data))
+        }
+    }
+    return _uploadFileStatusHandler
 }
 
 export const startMessagesListening = (dialodId: string) => async (dispatch: any) => {
@@ -135,6 +157,12 @@ export const onlineStatusToggle = (uid: string) => async (dispatch: any) => {
 }
 export const setOfflineStatus = (uid: string) => async (dispatch: any) => {
     await userInfo.setOfflineStatus(uid)
+}
+export const uploadFile = (file: File) => async (dispatch: any) => {
+    await filesAPI.updateUserPhoto(uploadFileStatusHandler(dispatch), file)
+}
+export const updateUserInfo = (newFullName: string) => async (dispatch: any) => {
+    await userInfo.updateUserData(newFullName)
 }
 
 export default userSlice.reducer

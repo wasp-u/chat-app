@@ -9,7 +9,6 @@ import {
     UserData,
 } from 'store/slices/userSlice'
 import { DialogsList } from './DialogsList'
-import { Search } from './Search'
 import { SearchResultList } from './SearchResultList'
 import { Settings } from './Settings'
 import { SideBarHeader } from './SideBarHeader'
@@ -17,6 +16,7 @@ import { useGetUserDialogs } from 'hooks/useGetUserDialogs'
 import { Stack } from '@mui/material'
 import { Loader } from '../../common/Loader'
 import { useGetUserInfo } from '../../hooks/useGetUserInfo'
+import Divider from '@mui/material/Divider'
 
 type Props = {
     uid: string
@@ -43,11 +43,13 @@ export const SideBar: React.FC<Props> = ({ uid }) => {
 
     const changeSettingMode = () => {
         setSettingsVisible(!settingsVisible)
+        searchResultVisible && setSearchResultVisible(false)
     }
 
     const onSearch = async (searchedValue: string) => {
         setLoadingStatus('loading')
         setSearchResultVisible(true)
+        settingsVisible && setSettingsVisible(false)
         await dispatch(onSearchUsers(searchedValue))
         setLoadingStatus('success')
     }
@@ -74,11 +76,11 @@ export const SideBar: React.FC<Props> = ({ uid }) => {
                 borderRadius: 4,
             }}>
             <SideBarHeader
-                displayName={user.displayName ? user.displayName : 'U'}
+                onSearch={onSearch}
                 settingMode={settingsVisible}
                 changeSettingMode={changeSettingMode}
             />
-            <Search onSearch={onSearch} />
+            <Divider />
             {searchResultVisible && (
                 <SearchResultList
                     loadingStatus={loadingStatus}
@@ -86,7 +88,7 @@ export const SideBar: React.FC<Props> = ({ uid }) => {
                     onCloseClick={() => setSearchResultVisible(false)}
                 />
             )}
-            {settingsVisible && <Settings changeSettingMode={changeSettingMode} />}
+            {settingsVisible && <Settings />}
             {dialogsListVisible && (
                 <DialogsList
                     status={status}

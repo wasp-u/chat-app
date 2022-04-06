@@ -28,7 +28,6 @@ export const Search: React.FC<SearchProps> = ({ onSearch }) => {
             variants={variants}>
             <TextField
                 autoComplete='off'
-                id='outlined-basic'
                 placeholder='Search users'
                 fullWidth
                 sx={{

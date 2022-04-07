@@ -48,8 +48,10 @@ export const dialogsAPI = {
             currentDialogId = `${fromUserId}&${toUserId}`
             await setDoc(doc(db, 'dialogs', currentDialogId), {
                 usersIdInDialog: [fromUserId, toUserId],
+                newMessagesCount: {
+                    [`${fromUserId}`]: 0,
+                },
                 id: currentDialogId,
-                [`newMessagesCount.${fromUserId}`]: 0,
             })
             await this._setMessage(text, currentDialogId, message)
         } else {

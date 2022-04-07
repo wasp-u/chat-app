@@ -82,21 +82,21 @@ export const Settings: React.FC<Props> = () => {
 
     return (
         <Stack alignItems={'center'} spacing={2}>
-            <label htmlFor='contained-button-file'>
-                <Input
-                    accept='image/*'
-                    id='contained-button-file'
-                    type='file'
-                    onChange={changeHandler}
-                />
-                <Tooltip title={'Change user photo'} placement={'right'}>
+            <Tooltip title={'Change user photo'} placement={'right'}>
+                <label htmlFor='contained-button-file'>
+                    <Input
+                        accept='image/*'
+                        id='contained-button-file'
+                        type='file'
+                        onChange={changeHandler}
+                    />
                     <UserAvatar
                         displayName={user.displayName}
                         photoURL={user.photoURL}
                         size={200}
                     />
-                </Tooltip>
-            </label>
+                </label>
+            </Tooltip>
             {/*<LinearProgressWithLabel value={uploadStatus} />*/}
             {isEditing ? (
                 <Stack direction={'row'} spacing={1} alignItems={'center'}>

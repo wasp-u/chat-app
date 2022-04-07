@@ -19,7 +19,7 @@ export const DialogItem: React.FC<Props> = React.memo(({ dialog, isActive, onCLi
     const { dialogWithUser, dialogLastMessage } = useGetDialogInfo(dialog)
     const status = dialogWithUser?.status.state
 
-    const newMessagesCount = dialog.newMessagesCount[uid]
+    const newMessagesCount = dialog.newMessagesCount[uid] || 0
     const isMyMessage = uid === dialogLastMessage?.fromId
 
     const sendTime = dialogLastMessage?.time ? getDisplayTime(dialogLastMessage?.time) : ''

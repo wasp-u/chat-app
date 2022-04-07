@@ -25,6 +25,7 @@ const UserAvatar: React.FC<Props> = ({ displayName, photoURL, status, size = 45 
                     sx={{
                         height: size,
                         width: size,
+                        fontSize: size / 2.5,
                     }}>
                     {displayName ? displayName[0] : 'U'}
                 </Avatar>

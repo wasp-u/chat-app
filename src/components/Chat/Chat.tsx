@@ -12,7 +12,6 @@ import {
     removeMessage,
     sendMessage,
     startMessagesListening,
-    stopMessagesListening,
 } from '../../store/slices/chatSlice'
 
 type Props = {
@@ -27,10 +26,9 @@ const Chat: React.FC<Props> = React.memo(({ openChat }) => {
     const dispatch = useDispatch()
 
     useEffect(() => {
-        openChat.dialogId && dispatch(startMessagesListening(openChat.dialogId))
+        const unsubscribe = dispatch(startMessagesListening(openChat.dialogId))
         return () => {
-            openChat.dialogId && dispatch(stopMessagesListening(openChat.dialogId))
-            // dispatch(setMessages([]))
+            unsubscribe(dispatch)
         }
     }, [dispatch, openChat.dialogId])
 

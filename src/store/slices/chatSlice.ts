@@ -37,13 +37,12 @@ const newMessageHandlerCreator = (dispatch: any) => {
     return _newMessageHandler
 }
 
-export const startMessagesListening = (dialodId: string) => async (dispatch: any) => {
-    chatAPI.subscribe(newMessageHandlerCreator(dispatch), dialodId)
+export const startMessagesListening = (dialodId: string) => (dispatch: any) => {
+    return chatAPI.subscribe(newMessageHandlerCreator(dispatch), dialodId)
 }
-export const stopMessagesListening = (dialodId: string) => (dispatch: any) => {
-    const unsubscribe = chatAPI.subscribe(newMessageHandlerCreator(dispatch), dialodId)
-    unsubscribe()
-}
+// export const stopMessagesListening = (dialodId: string) => (dispatch: any) => {
+//     chatAPI.subscribe(newMessageHandlerCreator(dispatch), dialodId)()
+// }
 export const sendMessage = (text: string, toUserId: string) => async (dispatch: any) => {
     await dialogsAPI.sendMessage(text, toUserId)
 }

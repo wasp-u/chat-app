@@ -60,6 +60,7 @@ export const dialogsAPI = {
         }
         await updateDoc(doc(db, 'dialogs', currentDialogId), {
             lastMessageId: message.id,
+            lastMessageTime: message.time,
             [`newMessagesCount.${toUserId}`]: increment(1),
         })
     },

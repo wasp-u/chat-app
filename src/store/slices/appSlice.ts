@@ -31,6 +31,7 @@ export type Dialog = {
     lastMessageId: string
     usersIdInDialog: [string, string]
     usersInDialog: [UserData, UserData]
+    lastMessageTime: number
     id: string
     newMessagesCount: {
         [key: string]: number

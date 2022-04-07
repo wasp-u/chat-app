@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { Close } from '@mui/icons-material'
 import { IconButton, Stack, Typography } from '@mui/material'
 import { useEffect } from 'react'
+import NoData from '../../../common/NoData'
 
 const variants = {
     visible: (i: number) => ({
@@ -37,6 +38,9 @@ export const SearchResultList: React.FC<Props> = ({ loadingStatus, onItemClick, 
         }
     }, [dispatch])
 
+    if (loadingStatus === 'loading') return <Loader />
+    if (searchedUsers.length === 0) return <NoData />
+
     return (
         <Stack>
             <Stack direction='row' justifyContent='space-between' alignItems='center'>
@@ -51,20 +55,16 @@ export const SearchResultList: React.FC<Props> = ({ loadingStatus, onItemClick, 
                 </motion.div>
             </Stack>
             <Stack>
-                {loadingStatus === 'loading' ? (
-                    <Loader />
-                ) : (
-                    searchedUsers.map((user, i) => (
-                        <motion.div
-                            key={i}
-                            initial='hidden'
-                            animate='visible'
-                            variants={variants}
-                            custom={i}>
-                            <User onCLick={onItemClick} key={user.uid} user={user} />
-                        </motion.div>
-                    ))
-                )}
+                {searchedUsers.map((user, i) => (
+                    <motion.div
+                        key={i}
+                        initial='hidden'
+                        animate='visible'
+                        variants={variants}
+                        custom={i}>
+                        <User onCLick={onItemClick} key={user.uid} user={user} />
+                    </motion.div>
+                ))}
             </Stack>
         </Stack>
     )

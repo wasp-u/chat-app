@@ -22,7 +22,7 @@ export const ChatBody: React.FC<Props> = ({
     const messages = useSelector((state: RootStateType) => state.chat.messages)
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
-    const [isAutoscroll, setIsAutoscroll] = useState(false)
+    const [isAutoscroll, setIsAutoscroll] = useState(true)
 
     const scrollToBottom = () => {
         isAutoscroll && messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })

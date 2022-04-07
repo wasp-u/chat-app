@@ -1,5 +1,5 @@
 import { Loader } from 'common/Loader'
-import { useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useSearchParams } from 'react-router-dom'
 import { useSigninCheck } from 'reactfire'
@@ -8,8 +8,9 @@ import { onlineStatusToggle, setOfflineStatus } from 'store/slices/appSlice'
 import './../firebase'
 import { Box, Container, Grid } from '@mui/material'
 import { SideBar } from '../components/SideBar/SideBar'
-import { Chat } from '../components/Chat/Chat'
 import { EmptyChatPage } from '../components/Chat/EmptyChatPage'
+
+const Chat = React.lazy(() => import('../components/Chat/Chat'))
 
 const HomePage = () => {
     const { status, data: signInResult } = useSigninCheck()
@@ -48,7 +49,13 @@ const HomePage = () => {
                             <SideBar uid={signInResult.user.uid} />
                         </Grid>
                         <Grid item xs={8}>
-                            {openChat ? <Chat openChat={openChat} /> : <EmptyChatPage />}
+                            {openChat ? (
+                                <Suspense fallback={<Loader />}>
+                                    <Chat openChat={openChat} />
+                                </Suspense>
+                            ) : (
+                                <EmptyChatPage />
+                            )}
                         </Grid>
                     </Grid>
                 </Container>

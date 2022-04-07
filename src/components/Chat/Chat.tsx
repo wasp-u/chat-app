@@ -19,7 +19,7 @@ type Props = {
     openChat: OpenChat
 }
 
-export const Chat: React.FC<Props> = React.memo(({ openChat }) => {
+const Chat: React.FC<Props> = React.memo(({ openChat }) => {
     const [initialFormValue, setInitialFormValue] = useState('')
     const [editMessageMode, setEditMessageMode] = useState(false)
     const [editMessageId, setEditMessageId] = useState('')
@@ -97,3 +97,4 @@ export const Chat: React.FC<Props> = React.memo(({ openChat }) => {
         </Stack>
     )
 })
+export default Chat

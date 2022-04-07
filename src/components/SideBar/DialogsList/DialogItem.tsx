@@ -45,7 +45,6 @@ export const DialogItem: React.FC<Props> = React.memo(({ dialog, isActive, onCLi
             sx={{
                 p: 2,
                 borderRadius: 2,
-                overflow: 'hidden',
                 '&:hover': {
                     bgcolor: 'action.hover',
                     cursor: 'pointer',

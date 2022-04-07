@@ -40,11 +40,11 @@ export const Search: React.FC<SearchProps> = ({ onSearch }) => {
                     endAdornment: (
                         <InputAdornment position='end'>
                             {searchedValue && (
-                                <IconButton onClick={() => setSearchValue('')}>
+                                <IconButton disableRipple onClick={() => setSearchValue('')}>
                                     <Close />
                                 </IconButton>
                             )}
-                            <IconButton onClick={searchHandle}>
+                            <IconButton disableRipple onClick={searchHandle}>
                                 <SearchOutlined />
                             </IconButton>
                         </InputAdornment>

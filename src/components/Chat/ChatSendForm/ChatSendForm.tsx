@@ -1,7 +1,6 @@
-import { ChangeEvent, KeyboardEvent, useEffect, useRef, useState } from 'react'
+import { KeyboardEvent, useEffect, useRef, useState } from 'react'
 import { Box, InputAdornment, styled, TextField } from '@mui/material'
 import { SendRounded } from '@mui/icons-material'
-import { uploadFile } from '../../store/slices/userSlice'
 import { useDispatch } from 'react-redux'
 
 type ChatSendFormProps = {
@@ -38,11 +37,11 @@ export const ChatSendForm: React.FC<ChatSendFormProps> = ({
     }
 
     const dispatch = useDispatch()
-    const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
-        // @ts-ignore
-        dispatch(uploadFile(e.target.files[0]))
-        // setSelectedFile(e.target.files[0])
-    }
+    // const changeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    //     // @ts-ignore
+    //     dispatch(uploadFile(e.target.files[0]))
+    //     // setSelectedFile(e.target.files[0])
+    // }
 
     useEffect(() => {
         if (value === '\n') {

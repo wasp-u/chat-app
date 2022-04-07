@@ -1,6 +1,7 @@
-import { Avatar, Grid, IconButton, Tooltip, Typography, Zoom } from '@mui/material'
+import { Grid, IconButton, Tooltip, Typography, Zoom } from '@mui/material'
 import { Delete } from '@mui/icons-material'
-import { UserData } from '../../store/slices/userSlice'
+import { UserData } from '../../../store/slices/appSlice'
+import UserAvatar from '../../../common/UserAvatar'
 
 type Props = {
     withUser: UserData
@@ -17,17 +18,11 @@ export const ChatHeader: React.FC<Props> = ({ deleteDialogHandle, withUser }) =>
             p={2}
             bgcolor={'action.selected'}>
             <Grid item mr={2}>
-                {withUser.photoURL ? (
-                    <Avatar sx={{ width: 56, height: 56 }} alt='user' src={withUser.photoURL} />
-                ) : (
-                    <Avatar
-                        sx={{
-                            width: 56,
-                            height: 56,
-                        }}>
-                        {withUser.displayName ? withUser.displayName[0] : 'U'}
-                    </Avatar>
-                )}
+                <UserAvatar
+                    displayName={withUser.displayName}
+                    photoURL={withUser.photoURL}
+                    size={56}
+                />
             </Grid>
             <Grid item xs>
                 <Typography variant='body1'>{withUser.displayName}</Typography>

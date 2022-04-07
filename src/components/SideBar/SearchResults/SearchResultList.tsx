@@ -1,7 +1,7 @@
 import { Loader } from 'common/Loader'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootStateType } from 'store'
-import { LoadingType, setSearchedUsers, UserData } from 'store/slices/userSlice'
+import { LoadingType, setSearchedUsers, UserData } from 'store/slices/appSlice'
 import { User } from './User'
 import { motion } from 'framer-motion'
 import { Close } from '@mui/icons-material'
@@ -27,7 +27,7 @@ type Props = {
 }
 
 export const SearchResultList: React.FC<Props> = ({ loadingStatus, onItemClick, onCloseClick }) => {
-    const searchedUsers = useSelector((state: RootStateType) => state.user.searchedUsers)
+    const searchedUsers = useSelector((state: RootStateType) => state.app.searchedUsers)
 
     const dispatch = useDispatch()
 

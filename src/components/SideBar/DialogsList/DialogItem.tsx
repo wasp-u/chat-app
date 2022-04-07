@@ -1,9 +1,11 @@
-import { Avatar, Badge, Chip, Grid, Skeleton, Stack, Typography } from '@mui/material'
+import { Chip, Grid, Skeleton, Stack, Typography } from '@mui/material'
 import React from 'react'
 import { useSelector } from 'react-redux'
 import { RootStateType } from 'store'
-import { Dialog, UserData } from 'store/slices/userSlice'
-import { useGetDialogInfo } from '../../hooks/useGetDialogInfo'
+import { Dialog, UserData } from 'store/slices/appSlice'
+import { useGetDialogInfo } from '../../../hooks/useGetDialogInfo'
+import UserAvatar from '../../../common/UserAvatar'
+import { getDisplayTime } from '../../../common/getDisplayTime'
 
 type Props = {
     isActive: boolean
@@ -11,33 +13,22 @@ type Props = {
     onCLick: (user: UserData, dialogId: string) => void
 }
 
-export const DialogItem: React.FC<Props> = React.memo(function DialogItem({
-    dialog,
-    isActive,
-    onCLick,
-}) {
-    const uid = useSelector((state: RootStateType) => state.user.userData?.uid) as string
+export const DialogItem: React.FC<Props> = React.memo(({ dialog, isActive, onCLick }) => {
+    const uid = useSelector((state: RootStateType) => state.app.userData?.uid) as string
 
     const { dialogWithUser, dialogLastMessage } = useGetDialogInfo(dialog)
     const status = dialogWithUser?.status.state
 
-    const newMessagesCount = (dialog.newMessagesCount && dialog.newMessagesCount[uid]) || 0
-    let displayTime = ''
-    let isMyMessage = false
+    const newMessagesCount = dialog.newMessagesCount[uid]
+    const isMyMessage = uid === dialogLastMessage?.fromId
 
-    if (dialogLastMessage) {
-        const sendLastMessageTime = new Date(dialogLastMessage.time)
-        const time = sendLastMessageTime.toString().split(' ')[4].split(':')
-        displayTime = time[0] + ':' + time[1]
-        isMyMessage = uid === dialogLastMessage.fromId
-    }
+    const sendTime = dialogLastMessage?.time ? getDisplayTime(dialogLastMessage?.time) : ''
+
     if (!dialogWithUser || !dialogLastMessage) {
         return (
             <Grid container p={2}>
                 <Grid item mr={2}>
-                    <Skeleton>
-                        <Avatar />
-                    </Skeleton>
+                    <Skeleton variant='circular' width={40} height={40} />
                 </Grid>
                 <Grid item xs>
                     <Skeleton />
@@ -62,21 +53,13 @@ export const DialogItem: React.FC<Props> = React.memo(function DialogItem({
             }}
             bgcolor={isActive ? 'action.selected' : ''}
             onClick={() => onCLick(dialogWithUser, dialog.id)}>
-            <Badge
-                color='success'
-                overlap='circular'
-                variant={'dot'}
-                invisible={status !== 'online'}>
-                <Grid item mr={2}>
-                    {!!dialogWithUser.photoURL ? (
-                        <Avatar alt='user' src={dialogWithUser.photoURL} />
-                    ) : (
-                        <Avatar>
-                            {dialogWithUser.displayName ? dialogWithUser.displayName[0] : 'U'}
-                        </Avatar>
-                    )}
-                </Grid>
-            </Badge>
+            <Grid item mr={2}>
+                <UserAvatar
+                    displayName={dialogWithUser.displayName}
+                    photoURL={dialogWithUser.photoURL}
+                    status={status}
+                />
+            </Grid>
             <Grid item xs zeroMinWidth>
                 <Typography color='text.primary' noWrap>
                     {dialogWithUser.displayName}
@@ -95,7 +78,7 @@ export const DialogItem: React.FC<Props> = React.memo(function DialogItem({
             <Grid item>
                 <Stack alignItems={'flex-end'}>
                     <Typography variant={'body2'} color='text.primary'>
-                        {displayTime}
+                        {sendTime}
                     </Typography>
                     {newMessagesCount > 0 && (
                         <Chip

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { MessageType } from 'store/slices/userSlice'
+import { MessageType } from 'store/slices/chatSlice'
 import { Box, Grid, Stack, Tooltip, Typography } from '@mui/material'
 import { Delete, Done, DoneAll, Edit } from '@mui/icons-material'
+import { getDisplayTime } from '../../../common/getDisplayTime'
 
 type Props = {
     message: MessageType
@@ -23,9 +24,7 @@ export const Message: React.FC<Props> = React.memo(
         deleteHandler,
         messageViewedToggleHandler,
     }) => {
-        const sendTime = new Date(message.time)
-        const time = sendTime.toString().split(' ')[4].split(':')
-        const displayTime = time[0] + ':' + time[1]
+        const displayTime = getDisplayTime(message.time)
 
         const [isMessageHover, setIsMessageHover] = useState(false)
 

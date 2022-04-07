@@ -7,11 +7,11 @@ import {
     setOpenChat,
     setUserData,
     UserData,
-} from 'store/slices/userSlice'
-import { DialogsList } from './DialogsList'
-import { SearchResultList } from './SearchResultList'
-import { Settings } from './Settings'
-import { SideBarHeader } from './SideBarHeader'
+} from 'store/slices/appSlice'
+import { DialogsList } from './DialogsList/DialogsList'
+import { SearchResultList } from './SearchResults/SearchResultList'
+import { Settings } from './Settings/Settings'
+import { SideBarHeader } from './SideBarHeader/SideBarHeader'
 import { useGetUserDialogs } from 'hooks/useGetUserDialogs'
 import { Stack } from '@mui/material'
 import { Loader } from '../../common/Loader'

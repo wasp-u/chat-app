@@ -1,19 +1,17 @@
 import * as React from 'react'
-import Avatar from '@mui/material/Avatar'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import Divider from '@mui/material/Divider'
 import Settings from '@mui/icons-material/Settings'
 import Logout from '@mui/icons-material/Logout'
-import { UserData } from '../../store/slices/userSlice'
-import firebase from 'firebase/compat'
-import User = firebase.User
+import { UserData } from '../../../store/slices/appSlice'
+import UserAvatar from '../../../common/UserAvatar'
 
 type Props = {
     anchorEl: null | HTMLElement
     open: boolean
-    user: UserData | User | null
+    user: UserData
     handleClose: () => void
     logoutHandleClick: () => void
     settingsHandleClick: () => void
@@ -62,12 +60,8 @@ export const AccountMenu: React.FC<Props> = ({
             transformOrigin={{ horizontal: 'right', vertical: 'top' }}
             anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}>
             <MenuItem>
-                {user?.photoURL ? (
-                    <Avatar src={user?.photoURL} alt={'user avatar'} />
-                ) : (
-                    <Avatar>{user?.displayName ? user.displayName[0] : 'U'}</Avatar>
-                )}{' '}
-                {user?.displayName}
+                <UserAvatar displayName={user.displayName} photoURL={user.photoURL} />
+                {user.displayName}
             </MenuItem>
             <Divider />
             <MenuItem onClick={settingsHandleClick}>

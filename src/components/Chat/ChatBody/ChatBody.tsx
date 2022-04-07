@@ -3,7 +3,7 @@ import { Message } from './Message'
 import { useSelector } from 'react-redux'
 import { RootStateType } from 'store'
 import { Box } from '@mui/material'
-import NoMessageData from '../../common/NoMessageData'
+import NoMessageData from '../../../common/NoMessageData'
 
 type Props = {
     editMessageId: string
@@ -18,8 +18,8 @@ export const ChatBody: React.FC<Props> = ({
     deleteMessageHandler,
     messageViewedToggleHandler,
 }) => {
-    const myId = useSelector((state: RootStateType) => state.user.userData?.uid) as string
-    const messages = useSelector((state: RootStateType) => state.user.messages)
+    const myId = useSelector((state: RootStateType) => state.app.userData?.uid) as string
+    const messages = useSelector((state: RootStateType) => state.chat.messages)
 
     const messagesEndRef = useRef<HTMLDivElement>(null)
     const [isAutoscroll, setIsAutoscroll] = useState(false)

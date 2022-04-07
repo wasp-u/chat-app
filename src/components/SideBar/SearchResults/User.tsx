@@ -1,5 +1,7 @@
-import { Avatar, Stack, Typography } from '@mui/material'
-import { UserData } from 'store/slices/userSlice'
+import { Stack, Typography } from '@mui/material'
+import { UserData } from 'store/slices/appSlice'
+import UserAvatar from '../../../common/UserAvatar'
+import React from 'react'
 
 type UserProps = {
     user: UserData
@@ -21,11 +23,11 @@ export const User: React.FC<UserProps> = ({ user, onCLick }) => {
                 },
             }}
             onClick={() => onCLick(user)}>
-            {user.photoURL ? (
-                <Avatar alt='user' src={user.photoURL} />
-            ) : (
-                <Avatar>{user.displayName ? user.displayName[0] : 'U'}</Avatar>
-            )}
+            <UserAvatar
+                displayName={user.displayName}
+                photoURL={user.photoURL}
+                status={user.status.state}
+            />
             <Stack>
                 <Typography color='text.primary'>{user.displayName}</Typography>
                 <Typography color='text.primary' variant={'body2'}>

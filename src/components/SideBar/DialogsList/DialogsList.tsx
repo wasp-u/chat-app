@@ -1,12 +1,12 @@
 import React from 'react'
 import { RootStateType } from 'store'
 import { useSelector } from 'react-redux'
-import { Dialog, UserData } from 'store/slices/userSlice'
+import { Dialog, UserData } from 'store/slices/appSlice'
 import { Loader } from 'common/Loader'
 import { DialogItem } from './DialogItem'
 import { motion } from 'framer-motion'
 import { Stack, Typography } from '@mui/material'
-import NoData from '../../common/NoData'
+import NoData from '../../../common/NoData'
 
 const variants = {
     visible: (i: number) => ({
@@ -32,7 +32,7 @@ export const DialogsList: React.FC<DialogsListProps> = React.memo(function Dialo
     onItemClick,
 }) {
     const activeDialogId = useSelector(
-        (state: RootStateType) => state.user.openChat?.withUser.uid
+        (state: RootStateType) => state.app.openChat?.withUser.uid
     ) as string
 
     if (status === 'loading') {

@@ -1,4 +1,4 @@
-import { Dialog } from 'store/slices/userSlice'
+import { Dialog } from 'store/slices/appSlice'
 import { useFirestore, useFirestoreCollectionData } from 'reactfire'
 import { collection, query, where } from 'firebase/firestore'
 

@@ -1,4 +1,4 @@
-import { MessageType } from 'store/slices/userSlice'
+import { MessageType } from 'store/slices/chatSlice'
 import { useFirestore, useFirestoreCollectionData } from 'reactfire'
 import { collection } from 'firebase/firestore'
 

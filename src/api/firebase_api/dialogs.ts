@@ -11,7 +11,7 @@ import {
     updateDoc,
     where,
 } from 'firebase/firestore'
-import { MessageType } from 'store/slices/userSlice'
+import { MessageType } from 'store/slices/chatSlice'
 import './../../firebase'
 import { getAuth } from 'firebase/auth'
 
@@ -49,6 +49,7 @@ export const dialogsAPI = {
             await setDoc(doc(db, 'dialogs', currentDialogId), {
                 usersIdInDialog: [fromUserId, toUserId],
                 id: currentDialogId,
+                [`newMessagesCount.${fromUserId}`]: 0,
             })
             await this._setMessage(text, currentDialogId, message)
         } else {
@@ -57,8 +58,6 @@ export const dialogsAPI = {
         }
         await updateDoc(doc(db, 'dialogs', currentDialogId), {
             lastMessageId: message.id,
-        })
-        await updateDoc(doc(db, 'dialogs', currentDialogId), {
             [`newMessagesCount.${toUserId}`]: increment(1),
         })
     },

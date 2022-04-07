@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { OpenChat, setOpenChat } from 'store/slices/appSlice'
+import { ChatBody } from './ChatBody/ChatBody'
+import { ChatHeader } from './ChatHeader/ChatHeader'
+import { ChatSendForm } from './ChatSendForm/ChatSendForm'
+import { useSearchParams } from 'react-router-dom'
+import { Stack } from '@mui/material'
 import {
     editMessage,
     messageViewedToggle,
-    OpenChat,
     removeMessage,
     sendMessage,
-    setOpenChat,
     startMessagesListening,
     stopMessagesListening,
-} from 'store/slices/userSlice'
-import { ChatBody } from './ChatBody'
-import { ChatHeader } from './ChatHeader'
-import { ChatSendForm } from './ChatSendForm'
-import { useSearchParams } from 'react-router-dom'
-import { Stack } from '@mui/material'
+} from '../../store/slices/chatSlice'
 
 type Props = {
     openChat: OpenChat

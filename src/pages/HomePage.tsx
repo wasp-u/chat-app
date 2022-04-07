@@ -4,12 +4,12 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useSearchParams } from 'react-router-dom'
 import { useSigninCheck } from 'reactfire'
 import { RootStateType } from 'store'
-import { onlineStatusToggle, setOfflineStatus } from 'store/slices/userSlice'
+import { onlineStatusToggle, setOfflineStatus } from 'store/slices/appSlice'
 import './../firebase'
 import { Box, Container, Grid } from '@mui/material'
 import { SideBar } from '../components/SideBar/SideBar'
-import { Chat } from '../components/chatWindow/Chat'
-import { EmptyChatPage } from '../components/chatWindow/EmptyChatPage'
+import { Chat } from '../components/Chat/Chat'
+import { EmptyChatPage } from '../components/Chat/EmptyChatPage'
 
 const HomePage = () => {
     const { status, data: signInResult } = useSigninCheck()
@@ -27,7 +27,7 @@ const HomePage = () => {
         }
     }, [status, dispatch])
 
-    const openChat = useSelector((state: RootStateType) => state.user.openChat)
+    const openChat = useSelector((state: RootStateType) => state.app.openChat)
 
     const [searchParams, setSearchParams] = useSearchParams()
 

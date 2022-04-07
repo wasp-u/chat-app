@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { RootStateType } from 'store'
 import {
-    Avatar,
     Box,
     CircularProgress,
     IconButton,
@@ -15,9 +14,10 @@ import {
     Typography,
 } from '@mui/material'
 import { ChangeEvent, useState } from 'react'
-import { updateUserInfo, uploadFile, UserData } from '../../store/slices/userSlice'
+import { updateUserInfo, uploadFile, UserData } from '../../../store/slices/appSlice'
 import { Close, Save } from '@mui/icons-material'
 import Compressor from 'compressorjs'
+import UserAvatar from '../../../common/UserAvatar'
 
 const Input = styled('input')({
     display: 'none',
@@ -40,8 +40,8 @@ function LinearProgressWithLabel(props: LinearProgressProps & { value: number })
 
 type Props = {}
 export const Settings: React.FC<Props> = () => {
-    const user = useSelector((state: RootStateType) => state.user.userData) as UserData
-    const uploadStatus = useSelector((state: RootStateType) => state.user.uploadFileStatus)
+    const user = useSelector((state: RootStateType) => state.app.userData) as UserData
+    const uploadStatus = useSelector((state: RootStateType) => state.app.uploadFileStatus)
     const dispatch = useDispatch()
 
     const [isEditing, setIsEditing] = useState(false)
@@ -90,32 +90,11 @@ export const Settings: React.FC<Props> = () => {
                     onChange={changeHandler}
                 />
                 <Tooltip title={'Change user photo'} placement={'right'}>
-                    {user.photoURL ? (
-                        <Avatar
-                            alt='user photo'
-                            src={user.photoURL}
-                            sx={{
-                                width: '200px',
-                                height: '200px',
-                                fontSize: '3rem',
-                                '&:hover': {
-                                    cursor: 'pointer',
-                                },
-                            }}
-                        />
-                    ) : (
-                        <Avatar
-                            sx={{
-                                width: '200px',
-                                height: '200px',
-                                fontSize: '3rem',
-                                '&:hover': {
-                                    cursor: 'pointer',
-                                },
-                            }}>
-                            {user.displayName ? user.displayName[0] : 'U'}
-                        </Avatar>
-                    )}
+                    <UserAvatar
+                        displayName={user.displayName}
+                        photoURL={user.photoURL}
+                        size={200}
+                    />
                 </Tooltip>
             </label>
             {/*<LinearProgressWithLabel value={uploadStatus} />*/}

@@ -1,4 +1,4 @@
-import { UserData } from 'store/slices/userSlice'
+import { UserData } from 'store/slices/appSlice'
 import { useFirestore, useFirestoreDocData } from 'reactfire'
 import { doc } from 'firebase/firestore'
 
